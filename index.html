@@ -1,0 +1,3072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aaron's 13 Colonies Quest & Master Test Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            colonial: {
+              paper: '#FAF6EE',
+              ink: '#2C221E',
+              gold: '#D97706',
+              leather: '#854D0E',
+              navy: '#1E3A8A',
+              crimson: '#991B1B',
+              forest: '#166534',
+              parchment: '#F5EBE1',
+              card: '#FFFFFF'
+            }
+          },
+          fontFamily: {
+            serif: ['Georgia', 'Cambria', 'Times New Roman', 'serif'],
+            sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbars and antique parchment flair */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #F5EBE1; }
+    ::-webkit-scrollbar-thumb { background: #B45309; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #92400E; }
+    
+    .card-shadow {
+      box-shadow: 0 4px 14px 0 rgba(44, 34, 30, 0.08);
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.94); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-pop {
+      animation: popIn 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #printable-results, #printable-results * { visibility: visible; }
+      #printable-results { position: absolute; left: 0; top: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body class="bg-[#FAF6EE] text-[#2C221E] min-h-screen flex flex-col font-sans selection:bg-amber-200">
+
+  <!-- TOP HEADER -->
+  <header class="bg-[#2C221E] text-amber-100 border-b-4 border-amber-600 sticky top-0 z-40 shadow-md">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-full bg-amber-600 text-amber-100 flex items-center justify-center font-bold font-serif text-xl shadow">
+          13
+        </div>
+        <div>
+          <h1 class="text-xl md:text-2xl font-bold font-serif tracking-tight text-white flex items-center gap-2">
+            Aaron's 13 Colonies Quest
+            <span class="text-xs bg-amber-500/30 text-amber-300 font-sans px-2 py-0.5 rounded border border-amber-500/50">Unit 2: Lesson 3 Complete</span>
+          </h1>
+          <p class="text-xs text-amber-200/80">10-Page Notebook Explorer, Games & 3 Practice Tests</p>
+        </div>
+      </div>
+
+      <!-- Controls & Quick Stats -->
+      <div class="flex items-center space-x-3 text-sm">
+        <button id="soundToggleBtn" onclick="toggleSound()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-900/60 hover:bg-amber-800 border border-amber-700/50 text-xs transition">
+          <span id="soundIcon">🔊</span>
+          <span id="soundText">Sound ON</span>
+        </button>
+        <div class="bg-amber-950 px-3 py-1.5 rounded-lg border border-amber-800 text-xs flex items-center gap-2">
+          <span>⭐ XP:</span>
+          <span id="globalXp" class="font-bold text-amber-400">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="max-w-6xl mx-auto px-4 flex space-x-1 md:space-x-4 border-t border-amber-900/60 pt-1 text-sm font-medium overflow-x-auto">
+      <button onclick="switchTab('games')" id="tab-games" class="tab-btn py-2 px-4 border-b-2 border-amber-500 text-amber-300 flex items-center gap-2 transition whitespace-nowrap">
+        🎮 Mini-Games
+      </button>
+      <button onclick="switchTab('study')" id="tab-study" class="tab-btn py-2 px-4 border-b-2 border-transparent text-amber-200/70 hover:text-white flex items-center gap-2 transition whitespace-nowrap">
+        🗺️ Interactive Colony Map Quiz &amp; 10-Page Guide
+      </button>
+      <button onclick="switchTab('tests')" id="tab-tests" class="tab-btn py-2 px-4 border-b-2 border-transparent text-amber-200/70 hover:text-white flex items-center gap-2 transition whitespace-nowrap">
+        📝 Test Center (3 Versions)
+      </button>
+    </nav>
+  </header>
+
+  <!-- CUSTOM IN-APP MODAL (Replacing default alerts/confirms) -->
+  <div id="customModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border-2 border-amber-600 animate-pop">
+      <div class="text-3xl mb-2 text-center" id="modalEmoji">📢</div>
+      <h3 class="text-xl font-bold font-serif text-stone-900 text-center mb-2" id="modalTitle">Notice</h3>
+      <p class="text-stone-700 text-sm text-center mb-6 leading-relaxed" id="modalMessage">Message goes here</p>
+      <div class="flex justify-center gap-3" id="modalButtons">
+        <button onclick="closeModal()" class="px-5 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-semibold text-sm transition">
+          Got It!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6">
+
+    <!-- ========================================== -->
+    <!-- SECTION 1: INTERACTIVE GAMES               -->
+    <!-- ========================================== -->
+    <section id="section-games" class="tab-content space-y-6">
+      
+      <!-- Game Selector Bar -->
+      <div class="bg-white p-4 rounded-xl border border-amber-200 card-shadow flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold font-serif text-stone-900">Aaron's Training Games</h2>
+          <p class="text-xs text-stone-600">Practice key concepts from your 10 notebook pages to earn XP!</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="setGame('regionSorter')" id="gbtn-regionSorter" class="game-switch-btn px-4 py-2 rounded-lg text-sm font-semibold bg-amber-600 text-white shadow">
+            🗺️ Region Sorter
+          </button>
+          <button onclick="setGame('founderMatch')" id="gbtn-founderMatch" class="game-switch-btn px-4 py-2 rounded-lg text-sm font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200">
+            🤝 Founder & Symbol Quest
+          </button>
+          <button onclick="setGame('vocabSprint')" id="gbtn-vocabSprint" class="game-switch-btn px-4 py-2 rounded-lg text-sm font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200">
+            ⚡ Vocab Sprint
+          </button>
+          <button onclick="switchTab('study')" class="px-4 py-2 rounded-lg text-sm font-semibold bg-emerald-700 text-white hover:bg-emerald-800 shadow flex items-center gap-1.5">
+            🗺️ Map &amp; Colony Deep-Dive Quiz
+          </button>
+        </div>
+      </div>
+
+      <!-- GAME 1: REGION SORTER -->
+      <div id="game-regionSorter" class="game-panel bg-white rounded-2xl p-6 border-2 border-amber-200 card-shadow">
+        <div class="flex flex-wrap items-center justify-between border-b pb-4 mb-4 gap-2">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-100 px-2 py-0.5 rounded">Game 1</span>
+            <h3 class="text-2xl font-bold font-serif text-stone-800">The 3 Colonial Regions Sorter</h3>
+            <p class="text-sm text-stone-600">Sort all 13 colonies, economies, climates, and notebook facts into their correct region!</p>
+          </div>
+          <div class="flex items-center gap-4 text-sm">
+            <div class="text-stone-600">Remaining: <span id="rs-remaining" class="font-bold text-stone-900">18</span></div>
+            <div class="text-stone-600">Score: <span id="rs-score" class="font-bold text-amber-600">0</span></div>
+            <div class="text-stone-600">Streak: <span id="rs-streak" class="font-bold text-emerald-600">🔥 0</span></div>
+            <button onclick="resetRegionSorter()" class="text-xs bg-stone-100 hover:bg-stone-200 text-stone-700 px-3 py-1.5 rounded-lg border">Restart</button>
+          </div>
+        </div>
+
+        <!-- Current Card to Sort -->
+        <div id="rs-card-container" class="my-6 flex flex-col items-center">
+          <div class="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">Tap a region below to place this item:</div>
+          <div id="rs-active-card" class="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-400 rounded-xl p-6 shadow-md text-center max-w-md w-full animate-pop">
+            <span id="rs-card-category" class="text-xs uppercase font-bold text-amber-800 bg-amber-200/80 px-2.5 py-0.5 rounded-full inline-block mb-2">Colony</span>
+            <div id="rs-card-text" class="text-2xl font-bold font-serif text-stone-900 mb-1">Massachusetts</div>
+            <div id="rs-card-hint" class="text-xs text-stone-600 italic">"Pilgrims & Puritans, cold winters, fishing & lumber"</div>
+          </div>
+        </div>
+
+        <!-- 3 Buckets / Target Regions -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- New England -->
+          <button onclick="handleSortChoice('New England')" class="group p-5 rounded-xl border-2 border-emerald-400 bg-emerald-50/70 hover:bg-emerald-100/80 text-left transition transform hover:-translate-y-1 relative">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-emerald-900 font-serif text-lg">🌲 New England</span>
+              <span class="text-xs bg-emerald-200 text-emerald-800 font-bold px-2 py-0.5 rounded-full">Region 1</span>
+            </div>
+            <p class="text-xs text-emerald-700 mb-2">Cold winters, rocky soil, lumber, furs, fishing, whaling, shipbuilding, town meetings.</p>
+            <div class="text-[11px] text-emerald-800 font-medium">Colonies: MA (including Maine), NH, RI, CT</div>
+          </button>
+
+          <!-- Middle Colonies -->
+          <button onclick="handleSortChoice('Middle')" class="group p-5 rounded-xl border-2 border-amber-400 bg-amber-50/70 hover:bg-amber-100/80 text-left transition transform hover:-translate-y-1 relative">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-amber-900 font-serif text-lg">🌾 Middle Colonies</span>
+              <span class="text-xs bg-amber-200 text-amber-800 font-bold px-2 py-0.5 rounded-full">Region 2</span>
+            </div>
+            <p class="text-xs text-amber-700 mb-2">"Breadbasket", fertile soil, wheat & grain, lumber, ironworks, diverse cultures & trade ports.</p>
+            <div class="text-[11px] text-amber-800 font-medium">Colonies: NY, NJ, PA, DE</div>
+          </button>
+
+          <!-- Southern Colonies -->
+          <button onclick="handleSortChoice('Southern')" class="group p-5 rounded-xl border-2 border-rose-400 bg-rose-50/70 hover:bg-rose-100/80 text-left transition transform hover:-translate-y-1 relative">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-rose-900 font-serif text-lg">☀️ Southern Colonies</span>
+              <span class="text-xs bg-rose-200 text-rose-800 font-bold px-2 py-0.5 rounded-full">Region 3</span>
+            </div>
+            <p class="text-xs text-rose-700 mb-2">Warm climate, long growing season, tobacco, rice, indigo, plantations, lots of lumber & coast.</p>
+            <div class="text-[11px] text-rose-800 font-medium">Colonies: MD, VA, NC, SC, GA</div>
+          </button>
+        </div>
+
+        <!-- Feedback Alert Toast -->
+        <div id="rs-feedback" class="mt-4 p-3 rounded-lg text-center font-semibold text-sm hidden"></div>
+      </div>
+
+      <!-- GAME 2: FOUNDER & SYMBOL QUEST -->
+      <div id="game-founderMatch" class="game-panel bg-white rounded-2xl p-6 border-2 border-amber-200 card-shadow hidden">
+        <div class="flex flex-wrap items-center justify-between border-b pb-4 mb-4 gap-2">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded">Game 2</span>
+            <h3 class="text-2xl font-bold font-serif text-stone-800">Founder & Symbol Match</h3>
+            <p class="text-sm text-stone-600">Connect the famous founders and Aaron's hand-drawn symbols to the correct colony!</p>
+          </div>
+          <div class="flex items-center gap-4 text-sm">
+            <div class="text-stone-600">Matches: <span id="fm-matches" class="font-bold text-indigo-600">0/8</span></div>
+            <button onclick="initFounderGame()" class="text-xs bg-stone-100 hover:bg-stone-200 text-stone-700 px-3 py-1.5 rounded-lg border">Shuffle</button>
+          </div>
+        </div>
+
+        <p class="text-xs text-stone-500 mb-4">Click one card on the left (Clue / Founder / Symbol), then click its matching Colony on the right!</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2" id="fm-clues-list"></div>
+          <div class="space-y-2" id="fm-colonies-list"></div>
+        </div>
+      </div>
+
+      <!-- GAME 3: VOCAB SPRINT -->
+      <div id="game-vocabSprint" class="game-panel bg-white rounded-2xl p-6 border-2 border-amber-200 card-shadow hidden">
+        <div class="flex flex-wrap items-center justify-between border-b pb-4 mb-4 gap-2">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-rose-700 bg-rose-100 px-2 py-0.5 rounded">Game 3</span>
+            <h3 class="text-2xl font-bold font-serif text-stone-800">Colonial Vocabulary Sprint</h3>
+            <p class="text-sm text-stone-600">Master all 6 vocabulary terms and definitions from page 2 of Aaron's notebook!</p>
+          </div>
+          <div class="flex items-center gap-4 text-sm">
+            <div class="text-stone-600">Question: <span id="vs-current" class="font-bold text-stone-900">1/6</span></div>
+            <div class="text-stone-600">Score: <span id="vs-score" class="font-bold text-rose-600">0</span></div>
+            <button onclick="startVocabSprint()" class="text-xs bg-stone-100 hover:bg-stone-200 text-stone-700 px-3 py-1.5 rounded-lg border">Restart</button>
+          </div>
+        </div>
+
+        <div id="vs-game-area" class="max-w-2xl mx-auto py-4">
+          <div class="bg-amber-50/70 border border-amber-300 rounded-xl p-5 mb-6 text-center">
+            <span class="text-xs uppercase font-bold text-amber-800 tracking-wider">Definition Clue:</span>
+            <p id="vs-prompt-text" class="text-lg md:text-xl font-medium text-stone-900 mt-2 font-serif">
+              "A formal document issued by the king that outlined a colony's geographic boundaries and specified how it would be governed."
+            </p>
+          </div>
+
+          <div id="vs-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+          <div id="vs-explanation" class="mt-4 p-3 rounded-lg text-sm hidden font-medium"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SECTION 2: AARON'S 10-PAGE STUDY GUIDE     -->
+    <!-- ========================================== -->
+    <section id="section-study" class="tab-content space-y-6 hidden">
+      
+      <!-- Summary Header -->
+      <div class="bg-gradient-to-r from-stone-900 to-amber-950 text-white p-6 rounded-2xl shadow-lg border border-amber-700 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="text-xs uppercase tracking-widest text-amber-400 font-bold">Interactive Map Quiz &amp; Student Notebook &bull; 10 Full Pages</span>
+          <h2 class="text-2xl md:text-3xl font-serif font-bold text-amber-100">Colony Map Explorer &amp; Deep-Dive Quiz</h2>
+          <p class="text-sm text-stone-300 max-w-2xl mt-1">
+            First, find the target colony on the 1770 map below! When you pick the right colony, take its complete quiz on Founders, Settlers, Climate, Geography, Economy, Religion, Government, Post-Its, and Symbols!
+          </p>
+        </div>
+        <div class="bg-amber-900/60 border border-amber-600/50 p-3 rounded-xl text-center min-w-[180px]">
+          <div class="text-xs text-amber-300 font-semibold uppercase tracking-wider">Colonies Mastered</div>
+          <div class="text-2xl font-black text-amber-400 mt-0.5" id="map-mastery-counter">0 / 13 ⭐</div>
+          <div class="text-[11px] text-amber-100/80 mt-0.5">Find on Map + Pass Quiz</div>
+        </div>
+      </div>
+
+      <!-- ========================================================= -->
+      <!-- INTERACTIVE 1770 MAP + COLONY DEEP-DIVE QUIZ ARENA        -->
+      <!-- ========================================================= -->
+      <div class="bg-white rounded-2xl p-5 md:p-6 border-2 border-amber-300 card-shadow space-y-5">
+        
+        <!-- Top Target Prompt Bar -->
+        <div class="bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-2 border-amber-400 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-amber-600 text-white flex items-center justify-center text-2xl font-bold shadow flex-shrink-0">
+              🧭
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold uppercase tracking-wider bg-amber-200 text-amber-900 px-2 py-0.5 rounded">Step 1: Map Detective Challenge</span>
+                <span id="map-mode-status" class="text-xs font-semibold text-emerald-700">Find the colony on the map!</span>
+              </div>
+              <h3 class="text-lg md:text-xl font-serif font-bold text-stone-900 mt-0.5" id="map-target-prompt">
+                Click on <span class="text-amber-700 underline decoration-2" id="map-target-name">Virginia</span> on the map!
+              </h3>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="pickNewMapTarget()" class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow transition">
+              🎯 New Random Colony Target
+            </button>
+            <button onclick="toggleMapLabels()" id="btn-toggle-labels" class="px-3.5 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-300 text-xs font-bold transition">
+              👁️ Show Map Labels: OFF
+            </button>
+          </div>
+        </div>
+
+        <!-- Feedback Banner when clicking the map -->
+        <div id="map-click-feedback" class="hidden p-3 rounded-xl text-sm font-bold text-center transition"></div>
+
+        <!-- Main Split Grid: Left = Interactive 1770 Map | Right = Colony Quiz & Notebook Inspector -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          <!-- LEFT COLUMN: Interactive 1770 Colonial Map (5 cols) -->
+          <div class="lg:col-span-5 bg-[#F5EBE1] rounded-2xl p-4 border-2 border-amber-800/30 shadow-inner flex flex-col items-center">
+            <div class="w-full flex items-center justify-between text-xs font-bold text-stone-700 mb-2 px-1">
+              <span>📜 Colonial America, 1770</span>
+              <div class="flex items-center gap-2 text-[11px]">
+                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>NE</span>
+                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>Middle</span>
+                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>South</span>
+              </div>
+            </div>
+
+            <!-- Interactive SVG Map of the 13 Colonies + Maine -->
+            <div class="w-full max-w-[360px] bg-[#D8EEF8] rounded-xl border-2 border-amber-900/40 overflow-hidden shadow relative">
+              <svg id="colonial-svg-map" viewBox="0 0 360 560" class="w-full h-auto select-none">
+                <!-- Ocean & Land Backdrop -->
+                <rect width="360" height="560" fill="#CFE8F6" />
+                <!-- Western Mainland / Appalachian Mountains Area -->
+                <path d="M0,0 L240,0 L195,95 L165,165 L140,245 L105,345 L65,455 L45,560 L0,560 Z" fill="#E9DEC9" />
+                
+                <!-- Appalachian Mountains Sketch Marks -->
+                <g stroke="#A69076" stroke-width="2" fill="none" opacity="0.65">
+                  <path d="M145,120 L155,108 L165,120 M130,150 L140,138 L150,150 M115,185 L125,172 L135,185 M100,225 L110,212 L120,225 M85,265 L95,252 L105,265 M70,305 L80,292 L90,305 M55,345 L65,332 L75,345 M40,385 L50,372 L60,385" />
+                </g>
+                <text x="22" y="270" fill="#78624C" font-size="10" font-weight="bold" font-style="italic" transform="rotate(-63 22,270)">Appalachian Mountains</text>
+                <text x="255" y="340" fill="#2B6CB0" font-size="12" font-weight="bold" font-style="italic" opacity="0.75">ATLANTIC</text>
+                <text x="265" y="356" fill="#2B6CB0" font-size="12" font-weight="bold" font-style="italic" opacity="0.75">OCEAN</text>
+
+                <!-- Compass Rose -->
+                <g transform="translate(295, 465)">
+                  <circle cx="0" cy="0" r="18" fill="#FAF6EE" stroke="#854D0E" stroke-width="1.5"/>
+                  <polygon points="0,-15 4,-4 15,0 4,4 0,15 -4,4 -15,0 -4,-4" fill="#B45309"/>
+                  <text x="-3" y="-20" font-size="8" font-weight="bold" fill="#2C221E">N</text>
+                </g>
+
+                <!-- ================= NEW ENGLAND COLONIES (GREEN) ================= -->
+                <!-- Maine (Part of Massachusetts) -->
+                <g class="colony-map-group cursor-pointer transition hover:opacity-90" onclick="handleMapColonyClick('Massachusetts')">
+                  <path id="mpath-Maine" d="M245,18 L315,12 L332,48 L292,82 L262,88 L252,55 Z" fill="#86EFAC" stroke="#166534" stroke-width="2" />
+                  <text x="285" y="50" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#064E3B" class="map-label hidden pointer-events-none">Maine (MA)</text>
+                </g>
+
+                <!-- New Hampshire -->
+                <g class="colony-map-group cursor-pointer transition hover:opacity-90" onclick="handleMapColonyClick('New Hampshire')">
+                  <path id="mpath-New Hampshire" d="M230,68 L254,62 L268,112 L240,122 L226,95 Z" fill="#4ADE80" stroke="#166534" stroke-width="2" />
+                  <text x="247" y="98" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#064E3B" class="map-label hidden pointer-events-none">NH</text>
+                </g>
+
+                <!-- Massachusetts -->
+                <g class="colony-map-group cursor-pointer transition hover:opacity-90" onclick="handleMapColonyClick('Massachusetts')">
+                  <path id="mpath-Massachusetts" d="M220,122 L274,112 L292,132 L280,145 L262,140 L218,145 Z" fill="#22C55E" stroke="#166534" stroke-width="2" />
+                  <text x="252" y="133" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#052E16" class="map-label hidden pointer-events-none">MA</text>
+                </g>
+
+                <!-- Rhode Island -->
+                <g class="colony-map-group cursor-pointer transition hover:opacity-90" onclick="handleMapColonyClick('Rhode Island')">
+                  <path id="mpath-Rhode Island" d="M254,144 L278,142 L282,168 L256,170 Z" fill="#16A34A" stroke="#14532D" stroke-width="2" />
+                  <text x="268" y="159" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#FFFFFF" class="map-label hidden pointer-events-none">RI</text>
+                </g>
+
+                <!-- Connecticut -->
+                <g class="colony-map-group cursor-pointer transition hover:opacity-90" onclick="handleMapColonyClick('Connecticut')">
+                  <path id="mpath-Connecticut" d="M214,146 L253,144 L255,172 L212,176 Z" fill="#4ADE80" stroke="#166534" stroke-width="2" />
+                  <text x="234" y="163" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#064E3B" class="map-label hidden pointer-events-none">CT</text>
+                </g>
+
+                <!-- ================= MIDDLE COLONIES (AMBER/GOLD) ================= -->
+                <!-- New York -->
+                <g class="colony-map-group cursor-pointer transition hover:opacity-90" onclick="handleMapColonyClick('New York')">
+                  <path id="mpath-New York" d="M162,110 L222,98 L218,145 L212,178 L234,186 L202,196 L186,182 L152,162 Z" fill="#FCD34D" stroke="#92400E" stroke-width="2" />
+                  <text x="190" y="148" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#78350F" class="map-label hidden pointer-events-none">NY</text>
+                </g>
+
+                <!-- Pennsylvania -->
+                <g class="colony-map-group cursor-pointer transition hover:opacity-90" onclick="handleMapColonyClick('Pennsylvania')">
+                  <path id="mpath-Pennsylvania" d="M122,176 L186,168 L195,204 L182,226 L114,228 Z" fill="#FBBF24" stroke="#92400E" stroke-width="2" />
+                  <text x="154" y="203" text-anchor="middle" font-size="10" font-weight="bold" fill="#78350F" class="map-label hidden pointer-events-none">PA</text>
+                </g>
+
+                <!-- New Jersey -->
+                <g class="colony-map-group cursor-pointer transition hover:opacity-90" onclick="handleMapColonyClick('New Jersey')">
+                  <path id="mpath-New Jersey" d="M196,192 L222,190 L226,232 L198,236 L188,216 Z" fill="#F59E0B" stroke="#78350F" stroke-width="2" />
+                  <text x="208" y="216" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#FFFFFF" class="map-label hidden pointer-events-none">NJ</text>
+                </g>
+
+                <!-- Delaware -->
+                <g class="colony-map-group cursor-pointer transition hover:opacity-90" onclick="handleMapColonyClick('Delaware')">
+                  <path id="mpath-Delaware" d="M185,232 L208,235 L212,264 L188,264 Z" fill="#D97706" stroke="#78350F" stroke-width="2" />
+                  <text x="198" y="252" text-anchor="middle" font-size="8" font-weight="bold" fill="#FFFFFF" class="map-label hidden pointer-events-none">DE</text>
+                </g>
+
+                <!-- ================= SOUTHERN COLONIES (ROSE/CORAL) ================= -->
+                <!-- Maryland -->
+                <g class="colony-map-group cursor-pointer transition hover:opacity-90" onclick="handleMapColonyClick('Maryland')">
+                  <path id="mpath-Maryland" d="M118,229 L184,228 L187,265 L206,266 L202,282 L162,276 L146,254 L116,254 Z" fill="#FDA4AF" stroke="#9F1239" stroke-width="2" />
+                  <text x="155" y="250" text-anchor="middle" font-size="9" font-weight="bold" fill="#881337" class="map-label hidden pointer-events-none">MD</text>
+                </g>
+
+                <!-- Virginia -->
+                <g class="colony-map-group cursor-pointer transition hover:opacity-90" onclick="handleMapColonyClick('Virginia')">
+                  <path id="mpath-Virginia" d="M92,268 L148,256 L195,284 L198,328 L82,332 Z" fill="#FB7185" stroke="#9F1239" stroke-width="2" />
+                  <text x="142" y="306" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#881337" class="map-label hidden pointer-events-none">VA</text>
+                </g>
+
+                <!-- North Carolina -->
+                <g class="colony-map-group cursor-pointer transition hover:opacity-90" onclick="handleMapColonyClick('North Carolina')">
+                  <path id="mpath-North Carolina" d="M78,333 L198,330 L205,378 L158,392 L70,382 Z" fill="#F43F5E" stroke="#881337" stroke-width="2" />
+                  <text x="142" y="362" text-anchor="middle" font-size="10" font-weight="bold" fill="#FFFFFF" class="map-label hidden pointer-events-none">NC</text>
+                </g>
+
+                <!-- South Carolina -->
+                <g class="colony-map-group cursor-pointer transition hover:opacity-90" onclick="handleMapColonyClick('South Carolina')">
+                  <path id="mpath-South Carolina" d="M82,384 L158,393 L165,442 L124,458 L78,425 Z" fill="#E11D48" stroke="#881337" stroke-width="2" />
+                  <text x="124" y="422" text-anchor="middle" font-size="10" font-weight="bold" fill="#FFFFFF" class="map-label hidden pointer-events-none">SC</text>
+                </g>
+
+                <!-- Georgia -->
+                <g class="colony-map-group cursor-pointer transition hover:opacity-90" onclick="handleMapColonyClick('Georgia')">
+                  <path id="mpath-Georgia" d="M56,430 L122,458 L132,528 L52,528 Z" fill="#BE123C" stroke="#881337" stroke-width="2" />
+                  <text x="92" y="492" text-anchor="middle" font-size="10" font-weight="bold" fill="#FFFFFF" class="map-label hidden pointer-events-none">GA</text>
+                </g>
+              </svg>
+            </div>
+
+            <!-- Quick Colony Selector Pills (also shows mastery checkmarks) -->
+            <div class="w-full mt-3">
+              <div class="text-[11px] font-bold uppercase text-stone-600 mb-1.5 text-center">Or tap a colony badge to jump straight to its quiz:</div>
+              <div id="colony-badge-strip" class="flex flex-wrap justify-center gap-1"></div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: Colony Deep-Dive Quiz & Notebook Card (7 cols) -->
+          <div class="lg:col-span-7 bg-stone-50 rounded-2xl p-5 border-2 border-stone-200 flex flex-col justify-between min-h-[540px]">
+            
+            <!-- Active Colony Header -->
+            <div>
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200 pb-3 mb-4">
+                <div class="flex items-center gap-3">
+                  <div id="cdq-symbol-box" class="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center text-2xl shadow-sm">
+                    🌿
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span id="cdq-region-pill" class="text-[11px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-900">Southern Colony</span>
+                      <span id="cdq-page-ref" class="text-xs text-stone-500 font-semibold">Notebook p. 8 (Textbook p. 57)</span>
+                    </div>
+                    <h3 id="cdq-colony-title" class="text-2xl font-serif font-bold text-stone-900">Virginia Deep-Dive Quiz</h3>
+                  </div>
+                </div>
+
+                <!-- Switch between Quiz Mode & Study Card Mode for this Colony -->
+                <div class="flex rounded-xl bg-stone-200 p-1 text-xs font-bold">
+                  <button onclick="setColonyPanelMode('quiz')" id="cpbtn-quiz" class="px-3 py-1.5 rounded-lg bg-amber-700 text-white shadow transition">
+                    ❓ Quiz Me (All Facts)
+                  </button>
+                  <button onclick="setColonyPanelMode('notes')" id="cpbtn-notes" class="px-3 py-1.5 rounded-lg text-stone-700 hover:text-stone-900 transition">
+                    📖 View Notebook Card
+                  </button>
+                </div>
+              </div>
+
+              <!-- SUB-PANEL A: INTERACTIVE COLONY QUIZ -->
+              <div id="cdq-quiz-panel" class="space-y-4">
+                <div class="flex items-center justify-between text-xs font-semibold text-stone-600 bg-white px-3.5 py-2 rounded-xl border border-stone-200">
+                  <span id="cdq-q-counter">Question 1 of 8</span>
+                  <span id="cdq-q-topic" class="text-amber-800 font-bold uppercase tracking-wider">Category: Founders</span>
+                  <span>Colony Score: <strong id="cdq-score-text" class="text-emerald-700">0</strong></span>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-stone-200 h-2 rounded-full overflow-hidden">
+                  <div id="cdq-progress-bar" class="bg-amber-600 h-full transition-all duration-300" style="width: 12%;"></div>
+                </div>
+
+                <!-- Question Prompt -->
+                <div class="bg-white p-4 rounded-xl border-2 border-amber-200 shadow-sm">
+                  <p id="cdq-question-text" class="text-base md:text-lg font-serif font-bold text-stone-900">
+                    Who were the founders of Virginia?
+                  </p>
+                </div>
+
+                <!-- 4 Choices -->
+                <div id="cdq-options-list" class="grid grid-cols-1 gap-2.5"></div>
+
+                <!-- Instant Explanation & Next Button -->
+                <div id="cdq-feedback-box" class="hidden p-3.5 rounded-xl border text-xs md:text-sm space-y-2">
+                  <div id="cdq-feedback-msg" class="font-bold"></div>
+                  <div class="flex justify-end">
+                    <button onclick="nextColonyQuizQuestion()" id="cdq-next-btn" class="px-4 py-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-white font-bold text-xs transition">
+                      Next Colony Question →
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SUB-PANEL B: FULL NOTEBOOK FLASHCARD FOR THIS COLONY -->
+              <div id="cdq-notes-panel" class="hidden space-y-3 text-xs md:text-sm">
+                <div id="cdq-notes-content" class="bg-white rounded-xl p-4 border border-stone-200 space-y-2.5"></div>
+                <div class="flex justify-end">
+                  <button onclick="setColonyPanelMode('quiz')" class="px-4 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs shadow">
+                    🎯 Ready! Quiz Me on This Colony Now
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Tip Bar -->
+            <div class="mt-6 pt-3 border-t border-stone-200 flex flex-wrap items-center justify-between gap-2 text-xs text-stone-500">
+              <span>💡 <strong>Tip for Aaron:</strong> Every question comes directly from your Reading Notes &amp; Post-Its!</span>
+              <button onclick="restartCurrentColonyQuiz()" class="text-amber-700 hover:underline font-bold">🔄 Restart This Colony's Quiz</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- 10-Page Tab Bar -->
+      <div class="bg-white p-3 rounded-xl border border-stone-200 card-shadow">
+        <div class="text-xs font-bold uppercase text-stone-500 mb-2">Flip through Aaron's 10 Notebook Pages:</div>
+        <div class="flex flex-wrap gap-1.5">
+          <button onclick="showNotebookPage(1)" id="pnav-1" class="pnav-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-700 text-white">p. 1 Map Detective</button>
+          <button onclick="showNotebookPage(2)" id="pnav-2" class="pnav-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-700 hover:bg-stone-200">p. 2 Vocabulary</button>
+          <button onclick="showNotebookPage(3)" id="pnav-3" class="pnav-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-700 hover:bg-stone-200">p. 3 Regional Map</button>
+          <button onclick="showNotebookPage(4)" id="pnav-4" class="pnav-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-700 hover:bg-stone-200">p. 4 South Carolina</button>
+          <button onclick="showNotebookPage(5)" id="pnav-5" class="pnav-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-700 hover:bg-stone-200">p. 5 MA & RI</button>
+          <button onclick="showNotebookPage(6)" id="pnav-6" class="pnav-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-700 hover:bg-stone-200">p. 6 CT & NY</button>
+          <button onclick="showNotebookPage(7)" id="pnav-7" class="pnav-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-700 hover:bg-stone-200">p. 7 PA & MD</button>
+          <button onclick="showNotebookPage(8)" id="pnav-8" class="pnav-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-700 hover:bg-stone-200">p. 8 VA & GA</button>
+          <button onclick="showNotebookPage(9)" id="pnav-9" class="pnav-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-700 hover:bg-stone-200">p. 9 Essential Question</button>
+          <button onclick="showNotebookPage(10)" id="pnav-10" class="pnav-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-700 hover:bg-stone-200">p. 10 Mayflower Compact</button>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 1 ================= -->
+      <div id="nb-page-1" class="nb-page space-y-4">
+        <div class="bg-white rounded-xl p-5 border border-stone-200 card-shadow space-y-4">
+          <div class="flex items-center justify-between border-b pb-3">
+            <div>
+              <span class="text-xs font-bold uppercase text-amber-700">Notebook Page 1 of 10</span>
+              <h3 class="text-xl font-bold font-serif text-stone-900">Warm-Up: Map Detective (1770 Map)</h3>
+            </div>
+            <span class="text-xs bg-amber-100 text-amber-900 font-bold px-3 py-1 rounded-full">Colony Sort & Key</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div class="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+              <h4 class="font-bold text-emerald-900 text-sm mb-1">1. New England Colonies</h4>
+              <p class="text-stone-700">Aaron listed: <strong>Maine</strong> (part of Massachusetts), <strong>Rhode Island</strong>, <strong>Connecticut</strong>, <strong>New Hampshire</strong> (and Massachusetts).</p>
+            </div>
+            <div class="p-3 bg-amber-50 rounded-lg border border-amber-200">
+              <h4 class="font-bold text-amber-900 text-sm mb-1">2. Middle Colonies</h4>
+              <p class="text-stone-700">Aaron listed: <strong>New Jersey</strong>, <strong>New York</strong>, <strong>Pennsylvania</strong>, <strong>Delaware</strong>.</p>
+            </div>
+            <div class="p-3 bg-rose-50 rounded-lg border border-rose-200">
+              <h4 class="font-bold text-rose-900 text-sm mb-1">3. Southern Colonies</h4>
+              <p class="text-stone-700">Aaron listed: <strong>Georgia</strong>, <strong>North Carolina</strong>, <strong>South Carolina</strong>, <strong>Virginia</strong>, <strong>Maryland</strong>.</p>
+            </div>
+          </div>
+
+          <div class="bg-stone-50 p-4 rounded-lg border border-stone-200 text-xs space-y-2">
+            <h4 class="font-bold text-stone-900 text-sm">Aaron's Map Observations:</h4>
+            <ul class="list-disc pl-5 space-y-1 text-stone-700">
+              <li><strong>Details noticed:</strong> 1. "Southern colonies have lumber" &bull; 2. "Middle colonies have lumber" &bull; 3. "New England has it all"</li>
+              <li><strong>Similarities and differences:</strong> 1. "Middle and South have lumber" &bull; 2. "Middle and New England have ships" &bull; 3. "South and England have lumber"</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 2 ================= -->
+      <div id="nb-page-2" class="nb-page space-y-4 hidden">
+        <div class="bg-white rounded-xl p-5 border border-stone-200 card-shadow space-y-4">
+          <div class="flex items-center justify-between border-b pb-3">
+            <div>
+              <span class="text-xs font-bold uppercase text-amber-700">Notebook Page 2 of 10</span>
+              <h3 class="text-xl font-bold font-serif text-stone-900">Vocabulary: Words to Know (pp. 48–63)</h3>
+            </div>
+            <span class="text-xs bg-amber-100 text-amber-900 font-bold px-3 py-1 rounded-full">6 Official Terms</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200">
+              <h4 class="font-bold text-stone-900 text-sm">1. Charter</h4>
+              <p class="text-stone-600 mt-1"><strong>Textbook:</strong> A formal document issued by the king that outlined a colony's geographic boundaries and specified how it would be governed.</p>
+              <p class="text-amber-900 mt-1 bg-amber-50 p-1.5 rounded">✍️ <strong>Aaron's words:</strong> "a document that maps out an area"</p>
+            </div>
+
+            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200">
+              <h4 class="font-bold text-stone-900 text-sm">2. Mayflower Compact</h4>
+              <p class="text-stone-600 mt-1"><strong>Textbook:</strong> An agreement that Pilgrims wrote and signed describing how they would govern themselves in the Americas.</p>
+              <p class="text-amber-900 mt-1 bg-amber-50 p-1.5 rounded">✍️ <strong>Aaron's words:</strong> "an agreement stating how the Pilgrims would govern themselves"</p>
+            </div>
+
+            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200">
+              <h4 class="font-bold text-stone-900 text-sm">3. Democratic</h4>
+              <p class="text-stone-600 mt-1"><strong>Textbook:</strong> A form of government where people have the power to rule, vote, or elect representatives.</p>
+              <p class="text-amber-900 mt-1 bg-amber-50 p-1.5 rounded">✍️ <strong>Aaron's words:</strong> "a form of government where people can vote"</p>
+            </div>
+
+            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200">
+              <h4 class="font-bold text-stone-900 text-sm">4. Cash Crop</h4>
+              <p class="text-stone-600 mt-1"><strong>Textbook:</strong> A crop raised in large quantities and sold for commercial profit (tobacco, rice, indigo).</p>
+              <p class="text-amber-900 mt-1 bg-amber-50 p-1.5 rounded">✍️ <strong>Aaron's words:</strong> "a plant sold for profit"</p>
+            </div>
+
+            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200">
+              <h4 class="font-bold text-stone-900 text-sm">5. Mercantilism</h4>
+              <p class="text-stone-600 mt-1"><strong>Textbook:</strong> An economic policy in which nations tried to gain wealth and power by controlling trade and establishing colonies.</p>
+              <p class="text-amber-900 mt-1 bg-amber-50 p-1.5 rounded">✍️ <strong>Aaron's words:</strong> "they did things to try and make more money"</p>
+            </div>
+
+            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200">
+              <h4 class="font-bold text-stone-900 text-sm">6. Slave Trade</h4>
+              <p class="text-stone-600 mt-1"><strong>Textbook:</strong> The business of capturing, transporting, and selling people as slaves across the Atlantic.</p>
+              <p class="text-amber-900 mt-1 bg-amber-50 p-1.5 rounded">✍️ <strong>Aaron's words:</strong> "people buying slaves and bringing them to America"</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 3 ================= -->
+      <div id="nb-page-3" class="nb-page space-y-4 hidden">
+        <div class="bg-white rounded-xl p-5 border border-stone-200 card-shadow space-y-4">
+          <div class="flex items-center justify-between border-b pb-3">
+            <div>
+              <span class="text-xs font-bold uppercase text-amber-700">Notebook Page 3 of 10</span>
+              <h3 class="text-xl font-bold font-serif text-stone-900">The Three Colonial Regions (Textbook p. 50)</h3>
+            </div>
+            <span class="text-xs bg-amber-100 text-amber-900 font-bold px-3 py-1 rounded-full">Word Bank & Geography</span>
+          </div>
+
+          <div class="bg-stone-50 p-3 rounded-lg border border-stone-200 text-xs">
+            <span class="font-bold text-stone-900 uppercase">Official Word Bank from Page 3:</span>
+            <p class="text-stone-700 mt-1">
+              fishing &bull; whaling &bull; shipbuilding &bull; lumber &bull; furs &bull; ironworks &bull; cattle &amp; grain &bull; rice &amp; indigo &bull; tobacco &bull; rocky soil &bull; fertile soil &bull; cold winters &bull; long growing season &bull; harbors &amp; ports &bull; Appalachian Mountains
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div class="p-3 bg-emerald-50 rounded-lg border border-emerald-200 space-y-1">
+              <h4 class="font-bold text-emerald-900 text-sm">New England (Green)</h4>
+              <p>1. <strong>Lumber</strong></p>
+              <p>2. <strong>Furs</strong></p>
+              <p class="text-emerald-700 text-[11px] pt-1">Also: cold winters, rocky soil, fishing, whaling, shipbuilding, harbors & ports.</p>
+            </div>
+            <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 space-y-1">
+              <h4 class="font-bold text-amber-900 text-sm">Middle Colonies (Red)</h4>
+              <p>1. <strong>Lumber</strong></p>
+              <p>2. <strong>Ships</strong></p>
+              <p class="text-amber-700 text-[11px] pt-1">Also: fertile soil, cattle & grain ("Breadbasket"), ironworks, busy trade ports.</p>
+            </div>
+            <div class="p-3 bg-rose-50 rounded-lg border border-rose-200 space-y-1">
+              <h4 class="font-bold text-rose-900 text-sm">Southern Colonies (Blue)</h4>
+              <p>1. <strong>Lots of lumber</strong></p>
+              <p>2. <strong>Coast</strong></p>
+              <p class="text-rose-700 text-[11px] pt-1">Also: warm climate, long growing season, tobacco, rice & indigo, plantations.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 4 ================= -->
+      <div id="nb-page-4" class="nb-page space-y-4 hidden">
+        <div class="bg-white rounded-xl p-5 border border-stone-200 card-shadow space-y-4">
+          <div class="flex items-center justify-between border-b pb-3">
+            <div>
+              <span class="text-xs font-bold uppercase text-amber-700">Notebook Page 4 of 10</span>
+              <h3 class="text-xl font-bold font-serif text-stone-900">Student Sample: South Carolina</h3>
+            </div>
+            <span class="text-xs bg-rose-100 text-rose-900 font-bold px-3 py-1 rounded-full">Southern Model</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div class="space-y-1.5 bg-stone-50 p-3 rounded-lg border border-stone-200 text-stone-700">
+              <p><strong>Founders:</strong> Eight English nobles (the Lords Proprietors) — to establish an agricultural base.</p>
+              <p><strong>Settlers:</strong> Colonists from England; later, colonists from Barbados.</p>
+              <p><strong>Climate:</strong> Mild winters and humid summers.</p>
+              <p><strong>Geography:</strong> Swamps and coastline.</p>
+              <p><strong>Economy / Jobs:</strong> Agricultural, based on rice and indigo.</p>
+              <p><strong>Religion:</strong> All faiths.</p>
+              <p><strong>Government:</strong> Self-governing.</p>
+            </div>
+
+            <div class="space-y-2 bg-amber-50 p-3 rounded-lg border border-amber-200">
+              <span class="font-bold text-amber-900 text-sm">📌 Post-It Method Facts:</span>
+              <p class="text-stone-800">1. Charles Town (today's Charleston) became a busy port city.</p>
+              <p class="text-stone-800">2. Enslaved Africans brought rice-growing skills and did most of the plantation work.</p>
+              <div class="mt-2 pt-2 border-t border-amber-300 flex items-center gap-2">
+                <span class="text-2xl">🌾</span>
+                <span class="font-bold text-amber-900">Symbol Drawn: Rice plant (rice = main crop)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 5 ================= -->
+      <div id="nb-page-5" class="nb-page space-y-4 hidden">
+        <div class="bg-white rounded-xl p-5 border border-stone-200 card-shadow space-y-4">
+          <div class="flex items-center justify-between border-b pb-3">
+            <div>
+              <span class="text-xs font-bold uppercase text-amber-700">Notebook Page 5 of 10</span>
+              <h3 class="text-xl font-bold font-serif text-stone-900">Section 2: Massachusetts &amp; Section 3: Rhode Island</h3>
+            </div>
+            <span class="text-xs bg-emerald-100 text-emerald-900 font-bold px-3 py-1 rounded-full">New England</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <!-- Massachusetts -->
+            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <h4 class="font-bold text-stone-900 text-sm">Massachusetts (p. 51)</h4>
+                <span class="text-xl">⛵</span>
+              </div>
+              <p><strong>Founders:</strong> Pilgrims led by William Bradford (1620) &amp; Puritans led by John Winthrop (1630).</p>
+              <p><strong>Settlers:</strong> Puritans seeking religious freedom.</p>
+              <p><strong>Climate:</strong> Hard winters, warm summers.</p>
+              <p><strong>Geography:</strong> Sandy coast with good ports, rich pastures, forests.</p>
+              <p><strong>Economy:</strong> Farming, lumbering, shops, shipping.</p>
+              <p><strong>Government:</strong> Self-governed (Mayflower Compact, town meetings).</p>
+              <div class="bg-amber-50 p-2 rounded border border-amber-200 mt-2 space-y-1">
+                <p>📌 <strong>Post-It 1:</strong> The Pilgrims signed the Mayflower Compact to govern themselves.</p>
+                <p>📌 <strong>Post-It 2:</strong> The Wampanoag taught the Pilgrims to grow crops, hunt, and fish.</p>
+                <p class="font-semibold text-amber-900">🎨 Symbol: Mayflower ship</p>
+              </div>
+            </div>
+
+            <!-- Rhode Island -->
+            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <h4 class="font-bold text-stone-900 text-sm">Rhode Island (p. 52)</h4>
+                <span class="text-xl">⛪</span>
+              </div>
+              <p><strong>Founders:</strong> Roger Williams and Anne Hutchinson.</p>
+              <p><strong>Settlers:</strong> People seeking religious freedom from strict Puritans.</p>
+              <p><strong>Climate:</strong> Hot humid summers, cold snowy winters.</p>
+              <p><strong>Geography:</strong> Coastal lowlands; flat, rocky woodlands.</p>
+              <p><strong>Economy:</strong> Farming, ships, fishing, whaling, trade.</p>
+              <p><strong>Religion:</strong> Various faiths — everyone welcomed!</p>
+              <p><strong>Government:</strong> Self-governed.</p>
+              <div class="bg-amber-50 p-2 rounded border border-amber-200 mt-2 space-y-1">
+                <p>📌 <strong>Post-It 1:</strong> Williams founded Providence in 1636.</p>
+                <p>📌 <strong>Post-It 2:</strong> Rhode Island was a slave trading center.</p>
+                <p class="font-semibold text-amber-900">🎨 Symbol: Church</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 6 ================= -->
+      <div id="nb-page-6" class="nb-page space-y-4 hidden">
+        <div class="bg-white rounded-xl p-5 border border-stone-200 card-shadow space-y-4">
+          <div class="flex items-center justify-between border-b pb-3">
+            <div>
+              <span class="text-xs font-bold uppercase text-amber-700">Notebook Page 6 of 10</span>
+              <h3 class="text-xl font-bold font-serif text-stone-900">Section 4: Connecticut &amp; Section 5: New York</h3>
+            </div>
+            <span class="text-xs bg-amber-100 text-amber-900 font-bold px-3 py-1 rounded-full">NE &amp; Middle</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <!-- Connecticut -->
+            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <h4 class="font-bold text-stone-900 text-sm">Connecticut (p. 53)</h4>
+                <span class="text-xl">🌳</span>
+              </div>
+              <p><strong>Founders:</strong> Thomas Hooker.</p>
+              <p><strong>Settlers:</strong> Puritans seeking a new settlement.</p>
+              <p><strong>Climate:</strong> Cold winters, mild summers.</p>
+              <p><strong>Geography:</strong> Forested hills, sea coast.</p>
+              <p><strong>Economy:</strong> Farming, ships, fishing, whaling.</p>
+              <p><strong>Government:</strong> Self-governing; first written constitution in the colonies, "The Fundamental Orders".</p>
+              <div class="bg-amber-50 p-2 rounded border border-amber-200 mt-2 space-y-1">
+                <p>📌 <strong>Post-It 1:</strong> Founded in 1639.</p>
+                <p>📌 <strong>Post-It 2:</strong> Charter Oak symbolized freedom.</p>
+                <p class="font-semibold text-amber-900">🎨 Symbol: Charter Oak tree</p>
+              </div>
+            </div>
+
+            <!-- New York -->
+            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <h4 class="font-bold text-stone-900 text-sm">New York (p. 54)</h4>
+                <span class="text-xl">⛵</span>
+              </div>
+              <p><strong>Founders:</strong> Dutch West India Company (1624); James, Duke of York (1664).</p>
+              <p><strong>Settlers:</strong> Dutch and English.</p>
+              <p><strong>Climate:</strong> Cold winters, hot summers.</p>
+              <p><strong>Geography:</strong> Wetlands, Hudson River, mountains.</p>
+              <p><strong>Economy:</strong> Farming, trading, shipping, mining.</p>
+              <p><strong>Government:</strong> British appointed a governor, along with an elected assembly.</p>
+              <div class="bg-amber-50 p-2 rounded border border-amber-200 mt-2 space-y-1">
+                <p>📌 <strong>Post-It 1:</strong> English took over in 1664 without firing a shot.</p>
+                <p>📌 <strong>Post-It 2:</strong> Assembly granted in 1683.</p>
+                <p class="font-semibold text-amber-900">🎨 Symbol: Trading ship / boat</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 7 ================= -->
+      <div id="nb-page-7" class="nb-page space-y-4 hidden">
+        <div class="bg-white rounded-xl p-5 border border-stone-200 card-shadow space-y-4">
+          <div class="flex items-center justify-between border-b pb-3">
+            <div>
+              <span class="text-xs font-bold uppercase text-amber-700">Notebook Page 7 of 10</span>
+              <h3 class="text-xl font-bold font-serif text-stone-900">Section 6: Pennsylvania &amp; Section 7: Maryland</h3>
+            </div>
+            <span class="text-xs bg-amber-100 text-amber-900 font-bold px-3 py-1 rounded-full">Middle &amp; Southern</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <!-- Pennsylvania -->
+            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <h4 class="font-bold text-stone-900 text-sm">Pennsylvania (p. 55)</h4>
+                <span class="text-xl">🕊️</span>
+              </div>
+              <p><strong>Founders:</strong> William Penn — King Charles II owed Penn's father money and repaid the debt with American land (glad to send Quaker troublemakers away!).</p>
+              <p><strong>Settlers:</strong> Quakers and Europeans.</p>
+              <p><strong>Climate:</strong> Cold winters; hot, humid summers.</p>
+              <p><strong>Geography:</strong> Rolling hills, trees, and fertile soil.</p>
+              <p><strong>Economy:</strong> Farming, lumbering, ships, grain.</p>
+              <p><strong>Religion:</strong> Quakers; various faiths — all are welcome!</p>
+              <p><strong>Government:</strong> Self-governed.</p>
+              <div class="bg-amber-50 p-2 rounded border border-amber-200 mt-2 space-y-1">
+                <p>📌 <strong>Post-It 1:</strong> Founded in 1681.</p>
+                <p>📌 <strong>Post-It 2:</strong> Quakers believed in equality.</p>
+                <p class="font-semibold text-amber-900">🎨 Symbol: Dove of peace</p>
+              </div>
+            </div>
+
+            <!-- Maryland -->
+            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <h4 class="font-bold text-stone-900 text-sm">Maryland (p. 56)</h4>
+                <span class="text-xl">✝️</span>
+              </div>
+              <p><strong>Founders:</strong> Cecil Calvert (Second Lord Baltimore).</p>
+              <p><strong>Settlers:</strong> Catholics and Protestants seeking religious and political freedom.</p>
+              <p><strong>Climate:</strong> Cold winters, hot summers.</p>
+              <p><strong>Geography:</strong> Low, fertile land surrounding the Chesapeake Bay.</p>
+              <p><strong>Economy:</strong> Farming (tobacco), fishing, shipping.</p>
+              <p><strong>Religion:</strong> Catholic &amp; Protestant.</p>
+              <p><strong>Government:</strong> Self-governing; assemblies of elected officials.</p>
+              <div class="bg-amber-50 p-2 rounded border border-amber-200 mt-2 space-y-1">
+                <p>📌 <strong>Post-It 1:</strong> Founded in 1634.</p>
+                <p>📌 <strong>Post-It 2:</strong> Religious freedom law in 1649 (Toleration Act).</p>
+                <p class="font-semibold text-amber-900">🎨 Symbol: Christian cross</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 8 ================= -->
+      <div id="nb-page-8" class="nb-page space-y-4 hidden">
+        <div class="bg-white rounded-xl p-5 border border-stone-200 card-shadow space-y-4">
+          <div class="flex items-center justify-between border-b pb-3">
+            <div>
+              <span class="text-xs font-bold uppercase text-amber-700">Notebook Page 8 of 10</span>
+              <h3 class="text-xl font-bold font-serif text-stone-900">Section 8: Virginia &amp; Section 9: Georgia</h3>
+            </div>
+            <span class="text-xs bg-rose-100 text-rose-900 font-bold px-3 py-1 rounded-full">Southern Colonies</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <!-- Virginia -->
+            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <h4 class="font-bold text-stone-900 text-sm">Virginia (p. 57)</h4>
+                <span class="text-xl">🌿</span>
+              </div>
+              <p><strong>Founders:</strong> Walter Raleigh, Virginia Company.</p>
+              <p><strong>Settlers:</strong> English workers and landowners.</p>
+              <p><strong>Climate:</strong> Mild winters; hot, humid summers.</p>
+              <p><strong>Geography:</strong> Wooded mountains, coastal plain.</p>
+              <p><strong>Economy:</strong> Farming (tobacco) that relied on slave labor, plantations, small farms.</p>
+              <p><strong>Religion:</strong> Church of England (Anglican).</p>
+              <p><strong>Government:</strong> House of Burgesses passed a law in 1661 making African workers slaves for life.</p>
+              <div class="bg-amber-50 p-2 rounded border border-amber-200 mt-2 space-y-1">
+                <p>📌 <strong>Post-It 1:</strong> Jamestown founded in 1607.</p>
+                <p>📌 <strong>Post-It 2:</strong> House of Burgesses formed in 1619.</p>
+                <p class="font-semibold text-amber-900">🎨 Symbol: Tobacco plant ("tobaco")</p>
+              </div>
+            </div>
+
+            <!-- Georgia -->
+            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <h4 class="font-bold text-stone-900 text-sm">Georgia (p. 59)</h4>
+                <span class="text-xl">🛡️</span>
+              </div>
+              <p><strong>Founders:</strong> James Oglethorpe and King George II (wanted a buffer against Spanish Florida).</p>
+              <p><strong>Settlers:</strong> Debtors, Europeans.</p>
+              <p><strong>Climate:</strong> Short mild winters; long, hot, humid summers.</p>
+              <p><strong>Geography:</strong> Wetlands, red-clay plains, forested mountains.</p>
+              <p><strong>Economy:</strong> Farming, trade.</p>
+              <p><strong>Religion:</strong> Various faiths. Oglethorpe imagined a utopian society with laws against drinking and owning slaves.</p>
+              <p><strong>Government:</strong> Self-governed.</p>
+              <div class="bg-amber-50 p-2 rounded border border-amber-200 mt-2 space-y-1">
+                <p>📌 <strong>Post-It 1:</strong> Founded in 1732.</p>
+                <p>📌 <strong>Post-It 2:</strong> Last of the 13 colonies.</p>
+                <p class="font-semibold text-amber-900">🎨 Symbol: Protective shield</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 9 ================= -->
+      <div id="nb-page-9" class="nb-page space-y-4 hidden">
+        <div class="bg-white rounded-xl p-5 border border-stone-200 card-shadow space-y-4">
+          <div class="flex items-center justify-between border-b pb-3">
+            <div>
+              <span class="text-xs font-bold uppercase text-amber-700">Notebook Page 9 of 10</span>
+              <h3 class="text-xl font-bold font-serif text-stone-900">Putting It Together: Essential Question</h3>
+            </div>
+            <span class="text-xs bg-amber-100 text-amber-900 font-bold px-3 py-1 rounded-full">Comparison &amp; Essay</span>
+          </div>
+
+          <!-- Comparison Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left border border-stone-200">
+              <thead class="bg-stone-100 text-stone-800 font-bold">
+                <tr>
+                  <th class="p-2 border">Category</th>
+                  <th class="p-2 border text-emerald-900">New England</th>
+                  <th class="p-2 border text-amber-900">Middle</th>
+                  <th class="p-2 border text-rose-900">Southern</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-stone-200 text-stone-700">
+                <tr>
+                  <td class="p-2 font-bold bg-stone-50 border">Climate &amp; Geography</td>
+                  <td class="p-2 border">Cold, rocky soil</td>
+                  <td class="p-2 border">Mild, fertile soil</td>
+                  <td class="p-2 border">Hot, fertile land</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-bold bg-stone-50 border">Economy</td>
+                  <td class="p-2 border">Fishing, shipping</td>
+                  <td class="p-2 border">Farming, trading</td>
+                  <td class="p-2 border">Plantation farming</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-bold bg-stone-50 border">Religion</td>
+                  <td class="p-2 border">Puritan</td>
+                  <td class="p-2 border">Various religions</td>
+                  <td class="p-2 border">Anglican, Catholic</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-bold bg-stone-50 border">Government</td>
+                  <td class="p-2 border">Town meetings</td>
+                  <td class="p-2 border">Elected assemblies</td>
+                  <td class="p-2 border">Elected assemblies</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Aaron's Exact 5-Sentence Answer -->
+          <div class="bg-amber-50 p-4 rounded-xl border border-amber-300">
+            <span class="text-xs uppercase font-bold text-amber-800 tracking-wider">✍️ Aaron's Exact Handwritten Essay:</span>
+            <p class="font-serif text-sm md:text-base text-stone-900 mt-2 leading-relaxed italic bg-white p-4 rounded-lg border border-amber-200 shadow-inner">
+              "All colonies had farms and governments. New England had colder weather than the South. New England focused on fishing, while the South focused on farming. The Middle colonies had more religious diversity than New England. Many colonies had elected assemblies to help make laws."
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 10 ================= -->
+      <div id="nb-page-10" class="nb-page space-y-4 hidden">
+        <div class="bg-white rounded-xl p-5 border border-stone-200 card-shadow space-y-4">
+          <div class="flex items-center justify-between border-b pb-3">
+            <div>
+              <span class="text-xs font-bold uppercase text-amber-700">Notebook Page 10 of 10</span>
+              <h3 class="text-xl font-bold font-serif text-stone-900">Reading Further: The Mayflower Compact</h3>
+            </div>
+            <span class="text-xs bg-stone-100 text-stone-700 px-3 py-1 rounded-full border">Primary Source Investigation</span>
+          </div>
+
+          <div class="bg-stone-50 p-3 rounded-lg border border-stone-200 text-xs">
+            <span class="font-bold text-stone-900 uppercase">Page 10 Word Bank:</span>
+            <p class="text-stone-700 mt-1">
+              self-government &bull; common consent &bull; just and equal laws &bull; general good &bull; order &bull; survive &bull; democratic &bull; King James
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <!-- Source 1 -->
+            <div class="p-4 bg-white rounded-xl border border-stone-200 shadow-sm space-y-3">
+              <span class="text-xs font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded">Source 1: Mourt's Relation (1622)</span>
+              <div class="space-y-2">
+                <p class="font-bold text-stone-900">Q1. What problem did the Separatists see? How did they plan to solve it?</p>
+                <p class="text-amber-900 bg-amber-50 p-2 rounded">✍️ <strong>Aaron wrote:</strong> "people disagreed, make rules together"</p>
+                <p class="font-bold text-stone-900 mt-2">Q2. Who would choose the "government and governors"?</p>
+                <p class="text-amber-900 bg-amber-50 p-2 rounded">✍️ <strong>Aaron wrote:</strong> "the passengers by common consent"</p>
+              </div>
+            </div>
+
+            <!-- Source 2 -->
+            <div class="p-4 bg-white rounded-xl border border-stone-200 shadow-sm space-y-3">
+              <span class="text-xs font-bold bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded">Source 2: The Mayflower Compact (1620)</span>
+              <div class="space-y-2">
+                <p class="font-bold text-stone-900">Q3. Reasons for forming a government ("civil body politick")?</p>
+                <p class="text-amber-900 bg-amber-50 p-2 rounded">✍️ <strong>Aaron wrote:</strong> "to keep order and survive"</p>
+                <p class="font-bold text-stone-900 mt-2">Q4. What did signers expect government to do?</p>
+                <p class="text-amber-900 bg-amber-50 p-2 rounded">✍️ <strong>Aaron wrote:</strong> "make equal laws for the general good"</p>
+                <p class="font-bold text-stone-900 mt-2">Q5. To whom did signers promise obedience?</p>
+                <p class="text-amber-900 bg-amber-50 p-2 rounded">✍️ <strong>Aaron wrote:</strong> "their government and its laws"</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SECTION 3: TEST CENTER (3 VERSIONS)        -->
+    <!-- ========================================== -->
+    <section id="section-tests" class="tab-content space-y-6 hidden">
+      
+      <!-- Test Version Selector Header -->
+      <div class="bg-white p-5 rounded-2xl border border-amber-300 card-shadow flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="text-xs uppercase font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded">Practice Exams</span>
+          <h2 class="text-2xl font-bold font-serif text-stone-900">Test Taking Center for Aaron</h2>
+          <p class="text-xs text-stone-600">Select any of the 3 test versions below to test your mastery before test day!</p>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button onclick="loadTestVersion('A')" id="tbtn-versionA" class="test-version-btn px-4 py-2 rounded-lg text-sm font-bold bg-amber-700 text-white shadow">
+            Version A: Unit Core (20 Qs)
+          </button>
+          <button onclick="loadTestVersion('B')" id="tbtn-versionB" class="test-version-btn px-4 py-2 rounded-lg text-sm font-bold bg-stone-100 text-stone-700 hover:bg-stone-200">
+            Version B: Sources &amp; Analysis (20 Qs)
+          </button>
+          <button onclick="loadTestVersion('C')" id="tbtn-versionC" class="test-version-btn px-4 py-2 rounded-lg text-sm font-bold bg-stone-100 text-stone-700 hover:bg-stone-200">
+            Version C: Aaron's Post-It Facts (20 Qs)
+          </button>
+        </div>
+      </div>
+
+      <!-- Test Container -->
+      <div id="test-runner-card" class="bg-white rounded-2xl p-6 md:p-8 border-2 border-amber-200 card-shadow">
+        
+        <!-- Header Info -->
+        <div class="flex flex-wrap items-center justify-between border-b pb-4 mb-6 gap-2">
+          <div>
+            <div id="test-badge-name" class="text-xs font-bold uppercase text-amber-700">Version A: Unit Core Exam</div>
+            <h3 id="test-title" class="text-xl md:text-2xl font-serif font-bold text-stone-800">13 Colonies Comprehensive Assessment</h3>
+          </div>
+          <div class="flex items-center gap-3 text-sm">
+            <span class="text-stone-500">Progress:</span>
+            <span id="test-progress-text" class="font-bold text-amber-700">Question 1 of 20</span>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-stone-100 h-2.5 rounded-full overflow-hidden mb-6 border border-stone-200">
+          <div id="test-progress-bar" class="bg-amber-600 h-full transition-all duration-300" style="width: 5%;"></div>
+        </div>
+
+        <!-- Question Body -->
+        <div id="test-question-box" class="space-y-6">
+          <div class="flex items-start gap-3">
+            <span id="q-number-circle" class="w-8 h-8 rounded-full bg-amber-100 text-amber-800 font-bold flex items-center justify-center flex-shrink-0 text-sm mt-0.5">
+              1
+            </span>
+            <div class="flex-grow">
+              <span id="q-category-tag" class="text-xs font-semibold uppercase tracking-wider text-stone-500">Geography &amp; Climate</span>
+              <h4 id="q-text" class="text-lg md:text-xl font-medium text-stone-900 mt-1 font-serif leading-snug">
+                Which colonial region featured cold snowy winters, rocky soil, and an economy heavily based on fishing, shipbuilding, and lumber?
+              </h4>
+            </div>
+          </div>
+
+          <!-- Answer Options -->
+          <div id="q-options" class="grid grid-cols-1 gap-3 pt-2"></div>
+
+          <!-- Question Navigation Buttons -->
+          <div class="flex items-center justify-between pt-4 border-t border-stone-100">
+            <button id="q-prev-btn" onclick="navTest(-1)" class="px-4 py-2 rounded-lg border text-sm font-medium text-stone-600 hover:bg-stone-50 disabled:opacity-40" disabled>
+              ← Previous
+            </button>
+            <div class="flex gap-2">
+              <button id="q-next-btn" onclick="navTest(1)" class="px-5 py-2 rounded-lg bg-stone-800 text-white text-sm font-semibold hover:bg-stone-900 transition">
+                Next Question →
+              </button>
+              <button id="q-finish-btn" onclick="submitTest()" class="px-6 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition hidden">
+                Grade My Test! 🎯
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Test Results Screen (Hidden initially) -->
+        <div id="test-results-view" class="hidden space-y-6 py-4">
+          <div id="printable-results" class="bg-amber-50/70 p-6 md:p-8 rounded-2xl border-2 border-amber-300 text-center space-y-4">
+            <div class="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-4xl shadow-inner bg-white border-2 border-amber-400" id="res-grade-emoji">
+              🏆
+            </div>
+            <h3 class="text-3xl font-serif font-bold text-stone-900" id="res-congrats-text">Outstanding Job, Aaron!</h3>
+            <p class="text-stone-600 text-sm max-w-md mx-auto" id="res-summary-subtext">You have completed Version A of the 13 Colonies Assessment.</p>
+            
+            <div class="flex justify-center gap-6 py-4">
+              <div class="bg-white px-5 py-3 rounded-xl border shadow-sm">
+                <span class="text-xs text-stone-500 uppercase font-bold">Your Score</span>
+                <div class="text-3xl font-black text-amber-700" id="res-score-pct">95%</div>
+              </div>
+              <div class="bg-white px-5 py-3 rounded-xl border shadow-sm">
+                <span class="text-xs text-stone-500 uppercase font-bold">Correct Answers</span>
+                <div class="text-3xl font-black text-emerald-600" id="res-correct-fraction">19 / 20</div>
+              </div>
+              <div class="bg-white px-5 py-3 rounded-xl border shadow-sm">
+                <span class="text-xs text-stone-500 uppercase font-bold">Grade</span>
+                <div class="text-3xl font-black text-indigo-600" id="res-letter-grade">A</div>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-3 pt-2">
+              <button onclick="retakeCurrentTest()" class="px-5 py-2.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-semibold text-sm transition">
+                🔄 Retake This Test
+              </button>
+              <button onclick="printReportCard()" class="px-5 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-900 text-white font-semibold text-sm transition">
+                🖨️ Print / Save Report Card
+              </button>
+            </div>
+          </div>
+
+          <!-- Comprehensive Answer Review Accordion -->
+          <div class="border rounded-xl p-5 bg-white">
+            <h4 class="font-serif font-bold text-lg text-stone-900 mb-3">Review Every Question &amp; Explanation:</h4>
+            <div id="test-review-items" class="space-y-3"></div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-stone-900 text-stone-400 py-6 border-t border-stone-800 text-center text-xs mt-12">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-3">
+      <div class="text-left">
+        <span class="text-amber-400 font-bold">Aaron's History Study Portal</span> &bull; 10 Full Pages Covered (Unit 2: Lesson 3)
+      </div>
+      <div>
+        "Common consent &amp; just laws" &bull; Good luck on your test, Aaron! ⭐
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================== -->
+  <!-- JAVASCRIPT LOGIC & QUESTION DATABASES                           -->
+  <!-- ============================================================== -->
+  <script>
+    /* ---------------------------------------------------------------
+       1. SOUND EFFECTS SYNTHESIZER (Web Audio API)
+       --------------------------------------------------------------- */
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+      }
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'correct') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.12);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.36);
+        } else if (type === 'wrong') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.exponentialRampToValueAtTime(140, now + 0.2);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.26);
+        } else if (type === 'click') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(800, now);
+          gain.gain.setValueAtTime(0.05, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          osc.start(now);
+          osc.stop(now + 0.06);
+        } else if (type === 'victory') {
+          const notes = [523.25, 659.25, 783.99, 1046.50];
+          notes.forEach((freq, idx) => {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.connect(g);
+            g.connect(audioCtx.destination);
+            o.frequency.value = freq;
+            g.gain.setValueAtTime(0.12, now + (idx * 0.12));
+            g.gain.exponentialRampToValueAtTime(0.01, now + (idx * 0.12) + 0.3);
+            o.start(now + (idx * 0.12));
+            o.stop(now + (idx * 0.12) + 0.35);
+          });
+        }
+      } catch (e) {
+        console.warn("Audio unavailable");
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundIcon').innerText = soundEnabled ? '🔊' : '🔇';
+      document.getElementById('soundText').innerText = soundEnabled ? 'Sound ON' : 'Sound OFF';
+    }
+
+    function addXp(amount) {
+      const el = document.getElementById('globalXp');
+      let current = parseInt(el.innerText) || 0;
+      current += amount;
+      el.innerText = current;
+    }
+
+    /* ---------------------------------------------------------------
+       2. CUSTOM MODAL DIALOG (Replaces alert() and confirm())
+       --------------------------------------------------------------- */
+    function showCustomModal(title, message, emoji = '💡', onConfirm = null) {
+      document.getElementById('modalTitle').innerText = title;
+      document.getElementById('modalMessage').innerText = message;
+      document.getElementById('modalEmoji').innerText = emoji;
+
+      const btnContainer = document.getElementById('modalButtons');
+      btnContainer.innerHTML = '';
+
+      if (onConfirm) {
+        const confirmBtn = document.createElement('button');
+        confirmBtn.className = 'px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition';
+        confirmBtn.innerText = 'Yes, Submit Now';
+        confirmBtn.onclick = () => {
+          closeModal();
+          onConfirm();
+        };
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'px-5 py-2 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-800 font-semibold text-sm transition';
+        cancelBtn.innerText = 'Keep Reviewing';
+        cancelBtn.onclick = closeModal;
+
+        btnContainer.appendChild(cancelBtn);
+        btnContainer.appendChild(confirmBtn);
+      } else {
+        const okBtn = document.createElement('button');
+        okBtn.className = 'px-6 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-semibold text-sm transition';
+        okBtn.innerText = 'Got It!';
+        okBtn.onclick = closeModal;
+        btnContainer.appendChild(okBtn);
+      }
+
+      document.getElementById('customModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('customModal').classList.add('hidden');
+    }
+
+    /* ---------------------------------------------------------------
+       3. TAB & NOTEBOOK PAGE NAVIGATION
+       --------------------------------------------------------------- */
+    function switchTab(tabId) {
+      playSound('click');
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-amber-500', 'text-amber-300');
+        btn.classList.add('border-transparent', 'text-amber-200/70');
+      });
+
+      document.getElementById('section-' + tabId).classList.remove('hidden');
+      const activeBtn = document.getElementById('tab-' + tabId);
+      activeBtn.classList.remove('border-transparent', 'text-amber-200/70');
+      activeBtn.classList.add('border-amber-500', 'text-amber-300');
+    }
+
+    function showNotebookPage(pageNum) {
+      playSound('click');
+      document.querySelectorAll('.nb-page').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.pnav-btn').forEach(b => {
+        b.classList.remove('bg-amber-700', 'text-white');
+        b.classList.add('bg-stone-100', 'text-stone-700');
+      });
+
+      const pageEl = document.getElementById('nb-page-' + pageNum);
+      if (pageEl) pageEl.classList.remove('hidden');
+      const activeBtn = document.getElementById('pnav-' + pageNum);
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-stone-100', 'text-stone-700');
+        activeBtn.classList.add('bg-amber-700', 'text-white');
+      }
+    }
+
+    /* ---------------------------------------------------------------
+       4. GAME 1: REGION SORTER LOGIC
+       --------------------------------------------------------------- */
+    const regionItems = [
+      { text: "Massachusetts", category: "Colony", region: "New England", hint: "Founded by Pilgrims (1620) & Puritans (1630)" },
+      { text: "Maine (part of Mass)", category: "Colony", region: "New England", hint: "From Aaron's p. 1 Map Detective list!" },
+      { text: "Rhode Island", category: "Colony", region: "New England", hint: "Roger Williams, Anne Hutchinson & religious freedom" },
+      { text: "Connecticut", category: "Colony", region: "New England", hint: "Thomas Hooker & Fundamental Orders (1639)" },
+      { text: "New Hampshire", category: "Colony", region: "New England", hint: "Cold snowy winters & thick timber forests" },
+      { text: "New York", category: "Colony", region: "Middle", hint: "Formerly Dutch New Netherland seized in 1664" },
+      { text: "Pennsylvania", category: "Colony", region: "Middle", hint: "William Penn 1681; Quaker equality & grain" },
+      { text: "New Jersey", category: "Colony", region: "Middle", hint: "Fertile land, trade ports & religious tolerance" },
+      { text: "Delaware", category: "Colony", region: "Middle", hint: "Part of the fertile Middle Breadbasket region" },
+      { text: "Virginia", category: "Colony", region: "Southern", hint: "Jamestown 1607 & tobacco cash crop plantations" },
+      { text: "Maryland", category: "Colony", region: "Southern", hint: "Lord Baltimore 1634; Catholic refuge & 1649 act" },
+      { text: "Georgia", category: "Colony", region: "Southern", hint: "Oglethorpe 1732; debtor haven & Florida buffer" },
+      { text: "North Carolina", category: "Colony", region: "Southern", hint: "Warm climate, pine lumber, tobacco & long growing season" },
+      { text: "South Carolina", category: "Colony", region: "Southern", hint: "Charles Town port, rice & indigo cash crops" },
+      { text: "The Breadbasket Colonies", category: "Nickname", region: "Middle", hint: "Grew lots of wheat and grain in fertile soil" },
+      { text: "Town Meetings", category: "Government", region: "New England", hint: "Direct democracy where male church members voted" },
+      { text: "House of Burgesses", category: "Government", region: "Southern", hint: "First elected assembly formed in 1619" },
+      { text: "Charter Oak Freedom Symbol", category: "Symbol", region: "New England", hint: "Aaron drew this tree for Connecticut!" }
+    ];
+
+    let rsQueue = [];
+    let rsCurrentItem = null;
+    let rsScore = 0;
+    let rsStreak = 0;
+
+    function resetRegionSorter() {
+      rsQueue = [...regionItems].sort(() => Math.random() - 0.5);
+      rsScore = 0;
+      rsStreak = 0;
+      updateRsStats();
+      nextRsItem();
+    }
+
+    function updateRsStats() {
+      document.getElementById('rs-score').innerText = rsScore;
+      document.getElementById('rs-streak').innerText = '🔥 ' + rsStreak;
+      document.getElementById('rs-remaining').innerText = rsQueue.length + (rsCurrentItem ? 1 : 0);
+    }
+
+    function nextRsItem() {
+      const feedback = document.getElementById('rs-feedback');
+      feedback.classList.add('hidden');
+
+      if (rsQueue.length === 0) {
+        document.getElementById('rs-card-container').innerHTML = `
+          <div class="bg-emerald-50 border-2 border-emerald-400 p-6 rounded-2xl text-center max-w-md animate-pop">
+            <div class="text-4xl mb-2">🎉</div>
+            <h4 class="text-xl font-bold font-serif text-emerald-900">Region Sorter Complete!</h4>
+            <p class="text-xs text-emerald-800 mt-1">Fantastic job sorting all 18 items across New England, Middle, and South!</p>
+            <button onclick="resetRegionSorter()" class="mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm">Play Again</button>
+          </div>
+        `;
+        playSound('victory');
+        addXp(120);
+        return;
+      }
+
+      rsCurrentItem = rsQueue.pop();
+      updateRsStats();
+
+      const card = document.getElementById('rs-active-card');
+      card.classList.remove('animate-pop');
+      void card.offsetWidth;
+      card.classList.add('animate-pop');
+
+      document.getElementById('rs-card-category').innerText = rsCurrentItem.category;
+      document.getElementById('rs-card-text').innerText = rsCurrentItem.text;
+      document.getElementById('rs-card-hint').innerText = rsCurrentItem.hint;
+    }
+
+    function handleSortChoice(selectedRegion) {
+      if (!rsCurrentItem) return;
+
+      const feedback = document.getElementById('rs-feedback');
+      feedback.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'border-emerald-300', 'bg-rose-100', 'text-rose-800', 'border-rose-300');
+
+      if (selectedRegion === rsCurrentItem.region) {
+        playSound('correct');
+        rsScore += 10 + (rsStreak * 2);
+        rsStreak++;
+        addXp(15);
+        feedback.classList.add('bg-emerald-100', 'text-emerald-900', 'border', 'border-emerald-300');
+        feedback.innerHTML = `✅ <strong>Correct!</strong> ${rsCurrentItem.text} belongs to the <strong>${rsCurrentItem.region}</strong> region.`;
+      } else {
+        playSound('wrong');
+        rsStreak = 0;
+        feedback.classList.add('bg-rose-100', 'text-rose-900', 'border', 'border-rose-300');
+        feedback.innerHTML = `❌ <strong>Not quite!</strong> ${rsCurrentItem.text} actually belongs to the <strong>${rsCurrentItem.region}</strong> region!`;
+      }
+
+      updateRsStats();
+      setTimeout(nextRsItem, 1100);
+    }
+
+    /* ---------------------------------------------------------------
+       5. GAME 2: FOUNDER & SYMBOL QUEST LOGIC
+       --------------------------------------------------------------- */
+    const founderPairs = [
+      { clue: "William Bradford & John Winthrop (Mayflower ⛵)", colony: "Massachusetts" },
+      { clue: "Roger Williams & Anne Hutchinson (Church ⛪)", colony: "Rhode Island" },
+      { clue: "Thomas Hooker (Charter Oak Tree 🌳)", colony: "Connecticut" },
+      { clue: "Dutch West India Co & Duke of York (Ship ⛵)", colony: "New York" },
+      { clue: "William Penn (Quaker Peace Dove 🕊️)", colony: "Pennsylvania" },
+      { clue: "Cecil Calvert / Lord Baltimore (Cross ✝️)", colony: "Maryland" },
+      { clue: "Sir Walter Raleigh & Virginia Co (Tobacco 🌿)", colony: "Virginia" },
+      { clue: "James Oglethorpe (Spanish Buffer Shield 🛡️)", colony: "Georgia" }
+    ];
+
+    let fmSelectedClue = null;
+    let fmMatchesFound = 0;
+
+    function initFounderGame() {
+      fmSelectedClue = null;
+      fmMatchesFound = 0;
+      document.getElementById('fm-matches').innerText = `0/${founderPairs.length}`;
+
+      const cluesList = document.getElementById('fm-clues-list');
+      const coloniesList = document.getElementById('fm-colonies-list');
+      cluesList.innerHTML = '';
+      coloniesList.innerHTML = '';
+
+      const shuffledClues = [...founderPairs].sort(() => Math.random() - 0.5);
+      const shuffledColonies = [...founderPairs].sort(() => Math.random() - 0.5);
+
+      shuffledClues.forEach(pair => {
+        const btn = document.createElement('button');
+        btn.className = 'w-full text-left p-3 rounded-xl border border-stone-200 bg-stone-50 hover:bg-stone-100 text-xs md:text-sm font-medium transition clue-card';
+        btn.innerText = pair.clue;
+        btn.onclick = () => selectFmClue(btn, pair.colony);
+        cluesList.appendChild(btn);
+      });
+
+      shuffledColonies.forEach(pair => {
+        const btn = document.createElement('button');
+        btn.className = 'w-full text-left p-3 rounded-xl border border-stone-200 bg-stone-50 hover:bg-stone-100 text-xs md:text-sm font-semibold transition colony-card';
+        btn.innerText = pair.colony;
+        btn.onclick = () => selectFmColony(btn, pair.colony);
+        coloniesList.appendChild(btn);
+      });
+    }
+
+    function selectFmClue(btnEl, targetColony) {
+      playSound('click');
+      document.querySelectorAll('.clue-card').forEach(b => b.classList.remove('ring-2', 'ring-indigo-600', 'bg-indigo-50'));
+      btnEl.classList.add('ring-2', 'ring-indigo-600', 'bg-indigo-50');
+      fmSelectedClue = { el: btnEl, colony: targetColony };
+    }
+
+    function selectFmColony(btnEl, colonyName) {
+      if (!fmSelectedClue) {
+        showCustomModal("Select a Clue First", "Please click one of the founder/symbol clues on the left before picking a colony!", "👉");
+        return;
+      }
+
+      if (fmSelectedClue.colony === colonyName) {
+        playSound('correct');
+        addXp(20);
+        fmMatchesFound++;
+        document.getElementById('fm-matches').innerText = `${fmMatchesFound}/${founderPairs.length}`;
+
+        fmSelectedClue.el.classList.add('bg-emerald-100', 'border-emerald-400', 'text-emerald-900', 'opacity-60', 'pointer-events-none');
+        btnEl.classList.add('bg-emerald-100', 'border-emerald-400', 'text-emerald-900', 'opacity-60', 'pointer-events-none');
+        fmSelectedClue = null;
+
+        if (fmMatchesFound === founderPairs.length) {
+          playSound('victory');
+          addXp(150);
+          showCustomModal("Colony Quest Complete!", "Awesome job, Aaron! You successfully matched all 8 colonies with their founders and notebook symbols!", "🎉");
+        }
+      } else {
+        playSound('wrong');
+        btnEl.classList.add('bg-rose-100', 'border-rose-400');
+        setTimeout(() => btnEl.classList.remove('bg-rose-100', 'border-rose-400'), 500);
+      }
+    }
+
+    /* ---------------------------------------------------------------
+       6. GAME 3: VOCAB SPRINT LOGIC
+       --------------------------------------------------------------- */
+    const vocabList = [
+      {
+        term: "Charter",
+        definition: "A formal document issued by the king that outlined a colony's geographic boundaries and specified how it would be governed.",
+        fake: ["Mayflower Compact", "Mercantilism", "Fundamental Orders"]
+      },
+      {
+        term: "Mayflower Compact",
+        definition: "An agreement that Pilgrims wrote and signed in 1620 describing how they would govern themselves in the Americas.",
+        fake: ["Charter", "Democratic", "Toleration Act"]
+      },
+      {
+        term: "Democratic",
+        definition: "A form of government where people have the power to vote, participate, and elect representatives to make decisions.",
+        fake: ["Monarchy", "Mercantilism", "Slave Trade"]
+      },
+      {
+        term: "Cash Crop",
+        definition: "A crop raised in large quantities (such as tobacco, rice, or indigo) and sold for profit.",
+        fake: ["Subsistence Crop", "Charter", "Raw Material"]
+      },
+      {
+        term: "Mercantilism",
+        definition: "An economic policy in which nations tried to gain wealth by controlling trade and establishing colonies.",
+        fake: ["Slave Trade", "Free Enterprise", "Democratic"]
+      },
+      {
+        term: "Slave Trade",
+        definition: "The business of capturing, transporting across the Atlantic, and selling people as slaves.",
+        fake: ["Mercantilism", "Indentured Servitude", "Cash Crop"]
+      }
+    ];
+
+    let vsIndex = 0;
+    let vsScore = 0;
+
+    function startVocabSprint() {
+      vsIndex = 0;
+      vsScore = 0;
+      document.getElementById('vs-score').innerText = vsScore;
+      loadVocabQuestion();
+    }
+
+    function loadVocabQuestion() {
+      if (vsIndex >= vocabList.length) {
+        document.getElementById('vs-game-area').innerHTML = `
+          <div class="bg-rose-50 border-2 border-rose-300 p-6 rounded-2xl text-center animate-pop">
+            <div class="text-4xl mb-2">⚡</div>
+            <h4 class="text-2xl font-bold font-serif text-rose-900">Vocab Sprint Finished!</h4>
+            <p class="text-stone-700 text-sm mt-1">You scored <strong>${vsScore} / 60</strong> on Aaron's official notebook terms.</p>
+            <button onclick="startVocabSprint()" class="mt-4 px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-sm">Play Again</button>
+          </div>
+        `;
+        playSound('victory');
+        addXp(100);
+        return;
+      }
+
+      document.getElementById('vs-current').innerText = `${vsIndex + 1}/${vocabList.length}`;
+      const item = vocabList[vsIndex];
+      document.getElementById('vs-prompt-text').innerText = `"${item.definition}"`;
+
+      const expl = document.getElementById('vs-explanation');
+      expl.classList.add('hidden');
+
+      const options = [item.term, ...item.fake].sort(() => Math.random() - 0.5);
+      const grid = document.getElementById('vs-options-grid');
+      grid.innerHTML = '';
+
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'p-4 rounded-xl border-2 border-amber-200 bg-white hover:bg-amber-50 hover:border-amber-400 font-bold text-stone-800 transition text-left text-sm flex items-center justify-between shadow-sm';
+        btn.innerHTML = `<span>${opt}</span><span class="text-stone-400">→</span>`;
+        btn.onclick = () => handleVocabChoice(btn, opt === item.term, item.term);
+        grid.appendChild(btn);
+      });
+    }
+
+    function handleVocabChoice(button, isCorrect, correctTerm) {
+      const expl = document.getElementById('vs-explanation');
+      expl.classList.remove('hidden');
+
+      if (isCorrect) {
+        playSound('correct');
+        vsScore += 10;
+        addXp(15);
+        document.getElementById('vs-score').innerText = vsScore;
+        button.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-950');
+        expl.className = 'mt-4 p-3 rounded-lg text-sm bg-emerald-100 border border-emerald-300 text-emerald-900 font-semibold';
+        expl.innerText = `🎯 Correct! That defines "${correctTerm}".`;
+      } else {
+        playSound('wrong');
+        button.classList.add('bg-rose-100', 'border-rose-500', 'text-rose-950');
+        expl.className = 'mt-4 p-3 rounded-lg text-sm bg-rose-100 border border-rose-300 text-rose-900 font-semibold';
+        expl.innerText = `❌ The correct vocabulary word is "${correctTerm}".`;
+      }
+
+      document.querySelectorAll('#vs-options-grid button').forEach(b => b.disabled = true);
+      vsIndex++;
+      setTimeout(loadVocabQuestion, 1400);
+    }
+
+    function setGame(gameKey) {
+      playSound('click');
+      document.querySelectorAll('.game-panel').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.game-switch-btn').forEach(b => {
+        b.classList.remove('bg-amber-600', 'text-white', 'shadow');
+        b.classList.add('bg-stone-100', 'text-stone-700');
+      });
+
+      document.getElementById('game-' + gameKey).classList.remove('hidden');
+      const activeBtn = document.getElementById('gbtn-' + gameKey);
+      activeBtn.classList.remove('bg-stone-100', 'text-stone-700');
+      activeBtn.classList.add('bg-amber-600', 'text-white', 'shadow');
+
+      if (gameKey === 'founderMatch') initFounderGame();
+      if (gameKey === 'vocabSprint') startVocabSprint();
+      if (gameKey === 'regionSorter' && rsQueue.length === 0) resetRegionSorter();
+    }
+
+    /* ---------------------------------------------------------------
+       6B. INTERACTIVE 1770 COLONY MAP & DEEP-DIVE COLONY QUIZ ENGINE
+       --------------------------------------------------------------- */
+    const colonyDeepDiveData = {
+      "Massachusetts": {
+        region: "New England",
+        pageRef: "Notebook p. 1 & p. 5 (Textbook p. 51)",
+        symbol: "⛵",
+        symbolLabel: "Mayflower ship (labeled 'Mayflower')",
+        founders: "Pilgrims led by William Bradford (1620) and Puritans led by John Winthrop (1630)",
+        settlers: "Puritans (and Pilgrims) seeking religious freedom",
+        climate: "Hard/cold winters, warm summers",
+        geography: "Sandy coast with good ports, rich pastures, forests, and rocky soil (includes Maine)",
+        economy: "Farming, lumbering, shops, shipping, fishing, and whaling",
+        religion: "Puritan",
+        government: "Self-governed (Mayflower Compact & New England town meetings)",
+        postIt1: "The Pilgrims signed the Mayflower Compact to govern themselves.",
+        postIt2: "The Wampanoag taught the Pilgrims to grow crops, hunt, and fish."
+      },
+      "Rhode Island": {
+        region: "New England",
+        pageRef: "Notebook p. 5 (Textbook p. 52)",
+        symbol: "⛪",
+        symbolLabel: "Church building (labeled 'church' with a cross)",
+        founders: "Roger Williams and Anne Hutchinson",
+        settlers: "People seeking religious freedom",
+        climate: "Hot humid summers, cold snowy winters",
+        geography: "Coastal lowlands; flat, rocky woodlands",
+        economy: "Farming, ships, fishing, whaling, trade",
+        religion: "Various faiths — everyone welcomed!",
+        government: "Self-governed",
+        postIt1: "Williams founded Providence in 1636.",
+        postIt2: "Rhode Island was a slave trading center."
+      },
+      "Connecticut": {
+        region: "New England",
+        pageRef: "Notebook p. 6 (Textbook p. 53)",
+        symbol: "🌳",
+        symbolLabel: "Charter Oak tree",
+        founders: "Thomas Hooker",
+        settlers: "Puritans seeking a new settlement",
+        climate: "Cold winters, mild summers",
+        geography: "Forested hills, sea coast",
+        economy: "Farming, ships, fishing, whaling",
+        religion: "Puritan",
+        government: "Self-governing; first written constitution in the colonies, 'The Fundamental Orders'",
+        postIt1: "Founded in 1639.",
+        postIt2: "Charter Oak symbolized freedom."
+      },
+      "New Hampshire": {
+        region: "New England",
+        pageRef: "Notebook p. 1 & p. 3 (New England Region)",
+        symbol: "🌲",
+        symbolLabel: "Tall pine trees for lumber & shipbuilding",
+        founders: "Colonists moving north from Massachusetts seeking land and trade",
+        settlers: "English settlers, fishers, and lumberjacks",
+        climate: "Cold snowy winters, mild summers",
+        geography: "Forested mountains, rocky soil, and Atlantic coastline",
+        economy: "Lumber, furs, fishing, shipbuilding, and trade",
+        religion: "Puritan",
+        government: "Self-governing with town meetings and representative assembly",
+        postIt1: "Listed by Aaron on Page 1 as one of the New England Colonies.",
+        postIt2: "Part of the New England region known for lumber, furs, and ships."
+      },
+      "New York": {
+        region: "Middle",
+        pageRef: "Notebook p. 6 (Textbook p. 54)",
+        symbol: "⛵",
+        symbolLabel: "Trading boat / sailboat",
+        founders: "Dutch West India Company (1624); James, Duke of York (1664)",
+        settlers: "Dutch and English",
+        climate: "Cold winters, hot summers",
+        geography: "Wetlands, Hudson River, mountains",
+        economy: "Farming, trading, shipping, mining",
+        religion: "Various faiths — all are welcome!",
+        government: "The British appointed a governor, along with an elected assembly",
+        postIt1: "English took over in 1664.",
+        postIt2: "Assembly granted in 1683."
+      },
+      "Pennsylvania": {
+        region: "Middle",
+        pageRef: "Notebook p. 7 (Textbook p. 55)",
+        symbol: "🕊️",
+        symbolLabel: "Peace dove / bird",
+        founders: "William Penn — King Charles II owed Penn's father money and paid the debt with land in America",
+        settlers: "Quakers and Europeans",
+        climate: "Cold winters; hot, humid summers",
+        geography: "Rolling hills, trees, and fertile soil",
+        economy: "Farming, lumbering, ships, wheat & grain ('Breadbasket')",
+        religion: "Quakers; various faiths — all are welcome!",
+        government: "Self-governed with elected assembly",
+        postIt1: "Founded in 1681.",
+        postIt2: "Quakers believed in equality."
+      },
+      "New Jersey": {
+        region: "Middle",
+        pageRef: "Notebook p. 1, p. 3 & p. 9 (Middle Region)",
+        symbol: "🌾",
+        symbolLabel: "Wheat & grain sheaf ('Breadbasket')",
+        founders: "Lord Berkeley and Sir George Carteret (friends of the Duke of York)",
+        settlers: "Diverse European settlers and Quakers",
+        climate: "Mild climate with warm summers and cold winters",
+        geography: "Fertile soil, river valleys, and Atlantic coast",
+        economy: "Farming ('Breadbasket' cattle & grain), lumber, ships, ironworks, and trade",
+        religion: "Various religions — religious tolerance",
+        government: "Elected assemblies and self-government",
+        postIt1: "Sorted by Aaron into the Middle Colonies on Page 1.",
+        postIt2: "Shared the Middle Colonies' fertile soil, lumber, and ships."
+      },
+      "Delaware": {
+        region: "Middle",
+        pageRef: "Notebook p. 1, p. 3 & p. 9 (Middle Region)",
+        symbol: "🚢",
+        symbolLabel: "Delaware River trade ship",
+        founders: "Originally Dutch/Swedish settlers; later granted to William Penn",
+        settlers: "Diverse European farmers and traders",
+        climate: "Mild winters and warm humid summers",
+        geography: "Flat fertile coastal plain along the Delaware Bay",
+        economy: "Farming (wheat, cattle, grain), lumber, and shipping",
+        religion: "Various religions welcomed",
+        government: "Elected assembly",
+        postIt1: "Sorted by Aaron into the Middle Colonies on Page 1.",
+        postIt2: "Part of the fertile 'Breadbasket' region with busy port access."
+      },
+      "Maryland": {
+        region: "Southern",
+        pageRef: "Notebook p. 7 (Textbook p. 56)",
+        symbol: "✝️",
+        symbolLabel: "Christian cross",
+        founders: "Cecil Calvert (Second Lord Baltimore)",
+        settlers: "Catholics and Protestants seeking religious and political freedom",
+        climate: "Cold winters, hot summers",
+        geography: "Low, fertile land surrounding the Chesapeake Bay",
+        economy: "Farming (tobacco), fishing, shipping",
+        religion: "Catholic (and Protestant)",
+        government: "Self-governing; assemblies of elected officials",
+        postIt1: "Founded in 1634.",
+        postIt2: "Religious freedom law in 1649."
+      },
+      "Virginia": {
+        region: "Southern",
+        pageRef: "Notebook p. 8 (Textbook p. 57)",
+        symbol: "🌿",
+        symbolLabel: "Tobacco plant (labeled 'tobaco')",
+        founders: "Walter Raleigh, Virginia Company",
+        settlers: "English workers and landowners",
+        climate: "Mild winters; hot, humid summers",
+        geography: "Wooded mountains, coastal plain",
+        economy: "Farming (tobacco) that relied on slave labor, plantations, and small independent farms",
+        religion: "Church of England (Anglican)",
+        government: "Self-governing with elected assemblies; House of Burgesses passed a 1661 law making African workers slaves for life",
+        postIt1: "Jamestown founded in 1607.",
+        postIt2: "House of Burgesses formed in 1619."
+      },
+      "North Carolina": {
+        region: "Southern",
+        pageRef: "Notebook p. 1, p. 3 & p. 9 (Southern Region)",
+        symbol: "🌲",
+        symbolLabel: "Southern pine lumber & coastal trade",
+        founders: "Eight English nobles (Lords Proprietors)",
+        settlers: "Small farmers from Virginia and England",
+        climate: "Warm climate with mild winters and hot humid summers",
+        geography: "Coastal plain, pine forests, and wooded mountains",
+        economy: "Lots of lumber, naval stores, tobacco, and farming",
+        religion: "Anglican / various faiths",
+        government: "Elected assembly",
+        postIt1: "Sorted by Aaron into the Southern Colonies on Page 1.",
+        postIt2: "Noted on Page 3 for 'lots of lumber' and 'coast' in the South."
+      },
+      "South Carolina": {
+        region: "Southern",
+        pageRef: "Notebook p. 4 (Student Sample)",
+        symbol: "🌾",
+        symbolLabel: "Rice plant (labeled 'rice = main crop')",
+        founders: "Eight English nobles (the Lords Proprietors) — to establish an agricultural base in the Americas",
+        settlers: "Colonists from England; later, colonists from Barbados",
+        climate: "Mild winters and humid summers",
+        geography: "Swamps and coastline",
+        economy: "Agricultural, based on rice and indigo",
+        religion: "All faiths",
+        government: "Self-governing",
+        postIt1: "Charles Town (today's Charleston) became a busy port city.",
+        postIt2: "Enslaved Africans brought rice-growing skills and did most of the plantation work."
+      },
+      "Georgia": {
+        region: "Southern",
+        pageRef: "Notebook p. 8 (Textbook p. 59)",
+        symbol: "🛡️",
+        symbolLabel: "Protective shield",
+        founders: "James Oglethorpe and King George II (wanted a buffer against Spanish Florida)",
+        settlers: "Debtors, Europeans",
+        climate: "Short, mild winters; long, hot, humid summers",
+        geography: "Wetlands and red-clay plains; forested mountains",
+        economy: "Farming, trade",
+        religion: "Various faiths; Oglethorpe first imagined a perfect (utopian) society with laws against drinking and owning slaves",
+        government: "Self-governed",
+        postIt1: "Founded in 1732.",
+        postIt2: "Last of the 13 colonies."
+      }
+    };
+
+    const allColonyNames = Object.keys(colonyDeepDiveData);
+    let currentTargetColony = "Virginia";
+    let activeQuizColony = "Virginia";
+    let mapLabelsVisible = false;
+    let masteredColonies = new Set();
+
+    // Per-colony quiz state
+    let cdqQuestions = [];
+    let cdqIndex = 0;
+    let cdqScore = 0;
+
+    function buildQuestionsForColony(colonyName) {
+      const data = colonyDeepDiveData[colonyName];
+      const otherColonies = allColonyNames.filter(c => c !== colonyName);
+
+      function pickDistractors(fieldKey, count = 3) {
+        const pool = [];
+        const shuffled = [...otherColonies].sort(() => Math.random() - 0.5);
+        for (const c of shuffled) {
+          const val = colonyDeepDiveData[c][fieldKey];
+          if (val && val !== data[fieldKey] && !pool.includes(val)) {
+            pool.push(val);
+          }
+          if (pool.length === count) break;
+        }
+        return pool;
+      }
+
+      const rawQuestions = [
+        {
+          topic: "1. Colonial Region",
+          q: `Which of the three colonial regions does ${colonyName} belong to?`,
+          correct: `${data.region} Colonies`,
+          wrongs: ["New England Colonies", "Middle Colonies", "Southern Colonies"].filter(r => r !== `${data.region} Colonies`).concat(["Western Frontier Territory"])
+        },
+        {
+          topic: "2. Founders",
+          q: `Who founded ${colonyName} (and why)?`,
+          correct: data.founders,
+          wrongs: pickDistractors("founders")
+        },
+        {
+          topic: "3. Settlers",
+          q: `According to Aaron's notes, which settlers lived in ${colonyName}?`,
+          correct: data.settlers,
+          wrongs: pickDistractors("settlers")
+        },
+        {
+          topic: "4. Climate",
+          q: `What was the climate of ${colonyName}?`,
+          correct: data.climate,
+          wrongs: pickDistractors("climate")
+        },
+        {
+          topic: "5. Geography",
+          q: `Which geographic features describe ${colonyName}?`,
+          correct: data.geography,
+          wrongs: pickDistractors("geography")
+        },
+        {
+          topic: "6. Economy / Jobs",
+          q: `What were the main economy and jobs in ${colonyName}?`,
+          correct: data.economy,
+          wrongs: pickDistractors("economy")
+        },
+        {
+          topic: "7. Religion",
+          q: `What was the religious makeup of ${colonyName}?`,
+          correct: data.religion,
+          wrongs: pickDistractors("religion")
+        },
+        {
+          topic: "8. Government",
+          q: `How was ${colonyName} governed according to Aaron's notebook?`,
+          correct: data.government,
+          wrongs: pickDistractors("government")
+        },
+        {
+          topic: "9. Post-It Facts & Symbol",
+          q: `Which Post-It fact and drawn symbol belong to ${colonyName}?`,
+          correct: `${data.postIt1} ${data.postIt2} (Symbol: ${data.symbolLabel})`,
+          wrongs: otherColonies
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3)
+            .map(c => `${colonyDeepDiveData[c].postIt1} ${colonyDeepDiveData[c].postIt2} (Symbol: ${colonyDeepDiveData[c].symbolLabel})`)
+        }
+      ];
+
+      return rawQuestions.map(item => {
+        const opts = [item.correct, ...item.wrongs.slice(0, 3)].sort(() => Math.random() - 0.5);
+        return {
+          topic: item.topic,
+          q: item.q,
+          options: opts,
+          correctIdx: opts.indexOf(item.correct),
+          correctText: item.correct
+        };
+      });
+    }
+
+    function initInteractiveMapSection() {
+      renderColonyBadgeStrip();
+      pickNewMapTarget("Virginia");
+      loadColonyIntoPanel("Virginia");
+    }
+
+    function renderColonyBadgeStrip() {
+      const strip = document.getElementById('colony-badge-strip');
+      if (!strip) return;
+      strip.innerHTML = '';
+
+      allColonyNames.forEach(cName => {
+        const isMastered = masteredColonies.has(cName);
+        const isActive = activeQuizColony === cName;
+        const btn = document.createElement('button');
+        btn.className = `px-2.5 py-1 rounded-lg text-[11px] font-bold border transition flex items-center gap-1 ${
+          isActive
+            ? 'bg-amber-700 text-white border-amber-800 shadow'
+            : isMastered
+              ? 'bg-emerald-100 text-emerald-900 border-emerald-400'
+              : 'bg-white text-stone-700 border-stone-300 hover:bg-amber-50'
+        }`;
+        btn.innerHTML = `<span>${isMastered ? '⭐' : colonyDeepDiveData[cName].symbol}</span><span>${cName}</span>`;
+        btn.onclick = () => {
+          playSound('click');
+          currentTargetColony = cName;
+          document.getElementById('map-target-name').innerText = cName;
+          handleMapColonyClick(cName);
+        };
+        strip.appendChild(btn);
+      });
+
+      document.getElementById('map-mastery-counter').innerText = `${masteredColonies.size} / 13 ⭐`;
+    }
+
+    function pickNewMapTarget(forcedColony = null) {
+      if (forcedColony) {
+        currentTargetColony = forcedColony;
+      } else {
+        const unmastered = allColonyNames.filter(c => !masteredColonies.has(c) && c !== currentTargetColony);
+        const pool = unmastered.length > 0 ? unmastered : allColonyNames.filter(c => c !== currentTargetColony);
+        currentTargetColony = pool[Math.floor(Math.random() * pool.length)];
+      }
+      const targetEl = document.getElementById('map-target-name');
+      if (targetEl) targetEl.innerText = currentTargetColony;
+      const statusEl = document.getElementById('map-mode-status');
+      if (statusEl) {
+        statusEl.innerText = `Locate ${currentTargetColony} on the 1770 map!`;
+        statusEl.className = "text-xs font-semibold text-amber-800";
+      }
+      const fb = document.getElementById('map-click-feedback');
+      if (fb) fb.classList.add('hidden');
+    }
+
+    function toggleMapLabels() {
+      playSound('click');
+      mapLabelsVisible = !mapLabelsVisible;
+      document.querySelectorAll('.map-label').forEach(lbl => {
+        lbl.classList.toggle('hidden', !mapLabelsVisible);
+      });
+      const btn = document.getElementById('btn-toggle-labels');
+      btn.innerText = mapLabelsVisible ? '👁️ Show Map Labels: ON' : '👁️ Show Map Labels: OFF';
+    }
+
+    function highlightColonyOnMap(colonyName) {
+      document.querySelectorAll('#colonial-svg-map path[id^="mpath-"]').forEach(p => {
+        p.setAttribute('stroke-width', '2');
+        p.style.filter = 'none';
+      });
+      const targetPath = document.getElementById('mpath-' + colonyName);
+      if (targetPath) {
+        targetPath.setAttribute('stroke-width', '4');
+        targetPath.style.filter = 'drop-shadow(0px 0px 6px rgba(217, 119, 6, 0.9))';
+      }
+      if (colonyName === 'Massachusetts') {
+        const mainePath = document.getElementById('mpath-Maine');
+        if (mainePath) {
+          mainePath.setAttribute('stroke-width', '4');
+          mainePath.style.filter = 'drop-shadow(0px 0px 6px rgba(217, 119, 6, 0.9))';
+        }
+      }
+    }
+
+    function handleMapColonyClick(clickedColony) {
+      const fb = document.getElementById('map-click-feedback');
+      fb.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-900', 'border-emerald-400', 'bg-rose-100', 'text-rose-900', 'border-rose-400');
+
+      if (clickedColony === currentTargetColony) {
+        playSound('correct');
+        addXp(20);
+        fb.className = 'p-3 rounded-xl text-sm font-bold text-center bg-emerald-100 text-emerald-900 border-2 border-emerald-400 animate-pop';
+        fb.innerHTML = `🎯 Spot on, Aaron! You found <strong>${clickedColony}</strong> on the map! Now complete its 9-question Deep-Dive Quiz on the right!`;
+        document.getElementById('map-mode-status').innerText = `✅ Found ${clickedColony}! Taking Colony Quiz...`;
+        highlightColonyOnMap(clickedColony);
+        loadColonyIntoPanel(clickedColony);
+      } else {
+        playSound('wrong');
+        const clickedRegion = colonyDeepDiveData[clickedColony].region;
+        const targetRegion = colonyDeepDiveData[currentTargetColony].region;
+        fb.className = 'p-3 rounded-xl text-sm font-bold text-center bg-rose-100 text-rose-900 border-2 border-rose-400 animate-pop';
+        fb.innerHTML = `❌ That colony is <strong>${clickedColony}</strong> (${clickedRegion}). Keep looking for <strong>${currentTargetColony}</strong> (Hint: it's in the <strong>${targetRegion} Colonies</strong>)!`;
+      }
+    }
+
+    function loadColonyIntoPanel(colonyName) {
+      activeQuizColony = colonyName;
+      const data = colonyDeepDiveData[colonyName];
+
+      document.getElementById('cdq-symbol-box').innerText = data.symbol;
+      document.getElementById('cdq-colony-title').innerText = `${colonyName} Deep-Dive Quiz`;
+      document.getElementById('cdq-page-ref').innerText = data.pageRef;
+
+      const regionPill = document.getElementById('cdq-region-pill');
+      regionPill.innerText = `${data.region} Colony`;
+      if (data.region === 'New England') {
+        regionPill.className = 'text-[11px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900';
+      } else if (data.region === 'Middle') {
+        regionPill.className = 'text-[11px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900';
+      } else {
+        regionPill.className = 'text-[11px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-900';
+      }
+
+      // Populate full notebook study card
+      document.getElementById('cdq-notes-content').innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div class="p-2.5 rounded-lg bg-stone-50 border border-stone-200">
+            <span class="text-[11px] uppercase font-bold text-stone-500">👤 Founders</span>
+            <p class="font-semibold text-stone-900 mt-0.5">${data.founders}</p>
+          </div>
+          <div class="p-2.5 rounded-lg bg-stone-50 border border-stone-200">
+            <span class="text-[11px] uppercase font-bold text-stone-500">🧳 Settlers</span>
+            <p class="font-semibold text-stone-900 mt-0.5">${data.settlers}</p>
+          </div>
+          <div class="p-2.5 rounded-lg bg-stone-50 border border-stone-200">
+            <span class="text-[11px] uppercase font-bold text-stone-500">🌡️ Climate</span>
+            <p class="font-semibold text-stone-900 mt-0.5">${data.climate}</p>
+          </div>
+          <div class="p-2.5 rounded-lg bg-stone-50 border border-stone-200">
+            <span class="text-[11px] uppercase font-bold text-stone-500">⛰️ Geography</span>
+            <p class="font-semibold text-stone-900 mt-0.5">${data.geography}</p>
+          </div>
+          <div class="p-2.5 rounded-lg bg-stone-50 border border-stone-200">
+            <span class="text-[11px] uppercase font-bold text-stone-500">💰 Economy / Jobs</span>
+            <p class="font-semibold text-stone-900 mt-0.5">${data.economy}</p>
+          </div>
+          <div class="p-2.5 rounded-lg bg-stone-50 border border-stone-200">
+            <span class="text-[11px] uppercase font-bold text-stone-500">⛪ Religion</span>
+            <p class="font-semibold text-stone-900 mt-0.5">${data.religion}</p>
+          </div>
+          <div class="p-2.5 rounded-lg bg-stone-50 border border-stone-200 sm:col-span-2">
+            <span class="text-[11px] uppercase font-bold text-stone-500">🏛️ Government</span>
+            <p class="font-semibold text-stone-900 mt-0.5">${data.government}</p>
+          </div>
+        </div>
+        <div class="p-3 rounded-xl bg-amber-50 border border-amber-300 space-y-1">
+          <div class="font-bold text-amber-900 text-xs uppercase">📌 Aaron's Post-It Facts &amp; Symbol</div>
+          <p class="text-stone-800"><strong>1.</strong> ${data.postIt1}</p>
+          <p class="text-stone-800"><strong>2.</strong> ${data.postIt2}</p>
+          <p class="text-amber-900 font-bold pt-1">🎨 Symbol Drawn: ${data.symbol} ${data.symbolLabel}</p>
+        </div>
+      `;
+
+      cdqQuestions = buildQuestionsForColony(colonyName);
+      cdqIndex = 0;
+      cdqScore = 0;
+      setColonyPanelMode('quiz');
+      renderColonyQuizQuestion();
+      renderColonyBadgeStrip();
+    }
+
+    function setColonyPanelMode(mode) {
+      const qPanel = document.getElementById('cdq-quiz-panel');
+      const nPanel = document.getElementById('cdq-notes-panel');
+      const qBtn = document.getElementById('cpbtn-quiz');
+      const nBtn = document.getElementById('cpbtn-notes');
+
+      if (mode === 'quiz') {
+        qPanel.classList.remove('hidden');
+        nPanel.classList.add('hidden');
+        qBtn.className = 'px-3 py-1.5 rounded-lg bg-amber-700 text-white shadow transition';
+        nBtn.className = 'px-3 py-1.5 rounded-lg text-stone-700 hover:text-stone-900 transition';
+      } else {
+        qPanel.classList.add('hidden');
+        nPanel.classList.remove('hidden');
+        nBtn.className = 'px-3 py-1.5 rounded-lg bg-amber-700 text-white shadow transition';
+        qBtn.className = 'px-3 py-1.5 rounded-lg text-stone-700 hover:text-stone-900 transition';
+      }
+    }
+
+    function renderColonyQuizQuestion() {
+      const total = cdqQuestions.length;
+      if (cdqIndex >= total) {
+        masteredColonies.add(activeQuizColony);
+        renderColonyBadgeStrip();
+        playSound('victory');
+        addXp(100);
+
+        document.getElementById('cdq-options-list').innerHTML = `
+          <div class="bg-emerald-50 border-2 border-emerald-400 rounded-2xl p-6 text-center space-y-3 animate-pop">
+            <div class="text-4xl">🏆</div>
+            <h4 class="text-xl font-serif font-bold text-emerald-950">${activeQuizColony} Mastered!</h4>
+            <p class="text-sm text-emerald-800">You scored <strong>${cdqScore} / ${total}</strong> on all notebook categories for ${activeQuizColony}!</p>
+            <div class="flex flex-wrap justify-center gap-3 pt-2">
+              <button onclick="restartCurrentColonyQuiz()" class="px-4 py-2 rounded-xl bg-white border border-emerald-500 text-emerald-900 font-bold text-xs hover:bg-emerald-100">
+                🔄 Practice ${activeQuizColony} Again
+              </button>
+              <button onclick="pickNewMapTarget()" class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow">
+                🧭 Find Next Colony on Map →
+              </button>
+            </div>
+          </div>
+        `;
+        document.getElementById('cdq-feedback-box').classList.add('hidden');
+        return;
+      }
+
+      const qObj = cdqQuestions[cdqIndex];
+      document.getElementById('cdq-q-counter').innerText = `Question ${cdqIndex + 1} of ${total}`;
+      document.getElementById('cdq-q-topic').innerText = qObj.topic;
+      document.getElementById('cdq-score-text').innerText = `${cdqScore} / ${total}`;
+      document.getElementById('cdq-progress-bar').style.width = `${Math.round(((cdqIndex + 1) / total) * 100)}%`;
+      document.getElementById('cdq-question-text').innerText = qObj.q;
+
+      const fbBox = document.getElementById('cdq-feedback-box');
+      fbBox.classList.add('hidden');
+
+      const listEl = document.getElementById('cdq-options-list');
+      listEl.innerHTML = '';
+
+      qObj.options.forEach((optText, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'p-3.5 rounded-xl border-2 border-stone-200 bg-white hover:border-amber-400 hover:bg-amber-50/50 text-left text-xs md:text-sm font-medium text-stone-800 transition flex items-start gap-3 shadow-sm';
+        const letter = String.fromCharCode(65 + idx);
+        btn.innerHTML = `
+          <span class="w-6 h-6 rounded-full bg-stone-100 border border-stone-300 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">${letter}</span>
+          <span>${optText}</span>
+        `;
+        btn.onclick = () => handleColonyQuizChoice(btn, idx, qObj);
+        listEl.appendChild(btn);
+      });
+    }
+
+    function handleColonyQuizChoice(clickedBtn, chosenIdx, qObj) {
+      const allBtns = document.querySelectorAll('#cdq-options-list button');
+      allBtns.forEach(b => b.disabled = true);
+
+      const fbBox = document.getElementById('cdq-feedback-box');
+      const fbMsg = document.getElementById('cdq-feedback-msg');
+      fbBox.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-300', 'text-emerald-900', 'bg-rose-50', 'border-rose-300', 'text-rose-900');
+
+      if (chosenIdx === qObj.correctIdx) {
+        playSound('correct');
+        cdqScore++;
+        addXp(15);
+        document.getElementById('cdq-score-text').innerText = `${cdqScore} / ${cdqQuestions.length}`;
+        clickedBtn.classList.add('border-emerald-500', 'bg-emerald-50', 'font-bold');
+        fbBox.classList.add('bg-emerald-50', 'border-emerald-300', 'text-emerald-900');
+        fbMsg.innerHTML = `✅ Correct! <strong>${qObj.correctText}</strong>`;
+      } else {
+        playSound('wrong');
+        clickedBtn.classList.add('border-rose-500', 'bg-rose-50');
+        if (allBtns[qObj.correctIdx]) {
+          allBtns[qObj.correctIdx].classList.add('border-emerald-500', 'bg-emerald-50', 'font-bold');
+        }
+        fbBox.classList.add('bg-rose-50', 'border-rose-300', 'text-rose-900');
+        fbMsg.innerHTML = `❌ Good try! From Aaron's notebook, the answer is: <strong>${qObj.correctText}</strong>`;
+      }
+    }
+
+    function nextColonyQuizQuestion() {
+      playSound('click');
+      cdqIndex++;
+      renderColonyQuizQuestion();
+    }
+
+    function restartCurrentColonyQuiz() {
+      playSound('click');
+      loadColonyIntoPanel(activeQuizColony);
+    }
+
+    /* ---------------------------------------------------------------
+       7. THE 3 TEST VERSIONS (20 Questions Each - 60 Total)
+       --------------------------------------------------------------- */
+    const testVersions = {
+      // -------------------------------------------------------------
+      // VERSION A: UNIT CORE EXAM
+      // -------------------------------------------------------------
+      A: {
+        badge: "Version A: Unit Core Exam",
+        title: "The 13 Colonies: Comprehensive Mastery Exam",
+        questions: [
+          {
+            q: "Which colonial region had cold snowy winters, rocky soil, and an economy centered on fishing, shipbuilding, and lumber?",
+            options: ["New England Colonies", "Middle Colonies", "Southern Colonies", "Caribbean Colonies"],
+            correct: 0,
+            category: "Regional Geography",
+            rationale: "Aaron's notes explicitly detail that New England had rocky soil, cold winters, and turned to fishing and shipbuilding instead of large plantations."
+          },
+          {
+            q: "Why was the colony of Georgia founded by James Oglethorpe and King George II in 1732?",
+            options: [
+              "To act as a military buffer against Spanish Florida and give English debtors a fresh start",
+              "To build large shipyards and dominate the Atlantic whaling industry",
+              "To establish a haven exclusively for strict Puritans seeking religious uniformity",
+              "To discover gold mines and create a trading post for French fur trappers"
+            ],
+            correct: 0,
+            category: "Georgia (p. 59)",
+            rationale: "From Aaron's notebook: Georgia was established as a buffer against Spanish Florida and a refuge for debtors released from prison."
+          },
+          {
+            q: "Which colony was granted to William Penn in 1681 as payment for a debt owed to his father by King Charles II?",
+            options: ["Pennsylvania", "New York", "Massachusetts", "Maryland"],
+            correct: 0,
+            category: "Pennsylvania (p. 55)",
+            rationale: "King Charles II owed William Penn's father money, so he repaid the debt by giving Penn land for a Quaker refuge in America."
+          },
+          {
+            q: "What were the primary cash crops cultivated in the Southern colonies?",
+            options: [
+              "Tobacco, rice, and indigo",
+              "Wheat, barley, and oats",
+              "Corn, cranberries, and maple syrup",
+              "Potatoes, squash, and fur pelts"
+            ],
+            correct: 0,
+            category: "Southern Economy",
+            rationale: "The Southern colonies' warm climate and long growing season made tobacco, rice, and indigo lucrative cash crops sold for profit."
+          },
+          {
+            q: "What is the official definition of a 'charter' in colonial America?",
+            options: [
+              "A formal document issued by the king that outlined boundaries and specified how a colony would be governed",
+              "An agreement made by passengers aboard a ship to vote on daily food rations",
+              "A tax receipt issued to landowners selling tobacco to overseas markets",
+              "A treaty signed between English colonists and Spanish officials in Florida"
+            ],
+            correct: 0,
+            category: "Vocabulary (p. 2)",
+            rationale: "From Aaron's vocabulary list: A charter is a formal royal document outlining geographic boundaries and government structure."
+          },
+          {
+            q: "Who were the primary founders of Massachusetts Colony in 1620 and 1630?",
+            options: [
+              "Pilgrims led by William Bradford and Puritans led by John Winthrop",
+              "Quakers led by William Penn and Dutch merchants",
+              "English debtors led by James Oglethorpe",
+              "Catholics led by Cecil Calvert (Lord Baltimore)"
+            ],
+            correct: 0,
+            category: "Massachusetts (p. 51)",
+            rationale: "Pilgrims founded Plymouth in 1620 with Bradford; Puritans founded Massachusetts Bay in 1630 under Winthrop."
+          },
+          {
+            q: "Why did the Pilgrims sign the Mayflower Compact in 1620 before stepping ashore?",
+            options: [
+              "To agree to join together into a civil government and follow laws chosen by common consent",
+              "To declare their total independence from King James and England",
+              "To establish an official military treaty with the Wampanoag tribe",
+              "To divide all gold and silver equally among the passengers"
+            ],
+            correct: 0,
+            category: "Mayflower Compact (p. 10)",
+            rationale: "The Mayflower Compact created a government by common consent to keep order and ensure survival."
+          },
+          {
+            q: "Why did Roger Williams and Anne Hutchinson found Rhode Island?",
+            options: [
+              "To create a haven where people of all faiths were welcomed and enjoyed religious freedom",
+              "To build the largest tobacco and rice plantation system in New England",
+              "To establish an official state church that banned non-Puritans",
+              "To establish a proprietary colony directly controlled by the King of England"
+            ],
+            correct: 0,
+            category: "Rhode Island (p. 52)",
+            rationale: "Williams and Hutchinson were banished from Massachusetts and established Rhode Island on total religious tolerance."
+          },
+          {
+            q: "Why were the Middle Colonies nicknamed the 'Breadbasket' colonies?",
+            options: [
+              "They possessed rich, fertile soil that produced massive surpluses of wheat and grains",
+              "They were the only colonies that imported flour from European bakeries",
+              "Their rocky terrain prevented any livestock from grazing",
+              "Their economy was based solely on baking bread for British naval vessels"
+            ],
+            correct: 0,
+            category: "Middle Colonies",
+            rationale: "The Middle Colonies grew so much grain, wheat, and rye that they earned the famous nickname 'Breadbasket'."
+          },
+          {
+            q: "What economic policy held that European nations gained wealth and power by strictly controlling colonial trade?",
+            options: ["Mercantilism", "Feudalism", "Capitalism", "Democracy"],
+            correct: 0,
+            category: "Vocabulary (p. 2)",
+            rationale: "Mercantilism is the economic doctrine where mother countries controlled colonial trade to enrich their own treasury."
+          },
+          {
+            q: "What landmark document created in Connecticut was the first written constitution in the American colonies?",
+            options: [
+              "The Fundamental Orders",
+              "The Mayflower Compact",
+              "The Maryland Toleration Act",
+              "The Declaration of Independence"
+            ],
+            correct: 0,
+            category: "Connecticut (p. 53)",
+            rationale: "Thomas Hooker and Connecticut settlers wrote the Fundamental Orders in 1639, the first written constitution in America."
+          },
+          {
+            q: "Which nation originally founded New York as New Netherland before the British took control in 1664?",
+            options: ["The Netherlands (Dutch)", "France", "Spain", "Portugal"],
+            correct: 0,
+            category: "New York (p. 54)",
+            rationale: "The Dutch West India Company established New Amsterdam in 1624 before James, Duke of York, seized it in 1664."
+          },
+          {
+            q: "Why did Cecil Calvert (Second Lord Baltimore) establish the colony of Maryland in 1634?",
+            options: [
+              "To provide a safe haven for English Catholics seeking religious and political freedom",
+              "To clear out debtor prisons across London and send inmates abroad",
+              "To build a naval outpost protecting New England fisheries",
+              "To serve as the personal hunting retreat for King Charles I"
+            ],
+            correct: 0,
+            category: "Maryland (p. 56)",
+            rationale: "Lord Baltimore established Maryland so Catholics could worship freely without persecution."
+          },
+          {
+            q: "What labor system increasingly powered large Southern agricultural plantations after the 1660s?",
+            options: [
+              "Enslaved African labor",
+              "Volunteer guilds from London",
+              "Spanish hired laborers",
+              "Indentured Native American merchants"
+            ],
+            correct: 0,
+            category: "Southern Economy",
+            rationale: "Plantations in Virginia, Maryland, and the Carolinas relied heavily on the forced labor of enslaved Africans."
+          },
+          {
+            q: "What symbol did Aaron draw on his study guide for Connecticut to represent colonial freedom?",
+            options: ["The Charter Oak tree", "A tobacco leaf", "A peace dove", "A pirate ship"],
+            correct: 0,
+            category: "Aaron's Notebook Symbols",
+            rationale: "Aaron drew the Charter Oak, which symbolized Connecticut's defiance against royal efforts to revoke its charter."
+          },
+          {
+            q: "Which of the following is an accurate list of the four Middle Colonies?",
+            options: [
+              "New York, New Jersey, Pennsylvania, and Delaware",
+              "Massachusetts, Connecticut, Rhode Island, and New Hampshire",
+              "Virginia, Maryland, North Carolina, and Georgia",
+              "Maine, Vermont, New York, and Pennsylvania"
+            ],
+            correct: 0,
+            category: "Colonial Geography",
+            rationale: "The Middle Colonies consisted of NY, NJ, PA, and DE."
+          },
+          {
+            q: "What was the first permanent English settlement in North America, founded in Virginia in 1607?",
+            options: ["Jamestown", "Plymouth", "Providence", "Charles Town"],
+            correct: 0,
+            category: "Virginia (p. 57)",
+            rationale: "Jamestown was founded in 1607 by the Virginia Company of London."
+          },
+          {
+            q: "What defines a 'cash crop'?",
+            options: [
+              "A crop grown in large quantities specifically to be sold for profit",
+              "A crop eaten exclusively by the farmer's immediate family",
+              "A wild weed that grows alongside riverbeds without maintenance",
+              "Paper currency stamped with botanical illustrations of trees"
+            ],
+            correct: 0,
+            category: "Vocabulary (p. 2)",
+            rationale: "Cash crops (like tobacco or rice) are grown in bulk specifically for market sale."
+          },
+          {
+            q: "What local democratic institution allowed New England colonists to gather and vote on local laws and budgets?",
+            options: ["Town meetings", "Royal courts", "House of Lords", "Military tribunals"],
+            correct: 0,
+            category: "Government",
+            rationale: "New England communities held town meetings, one of the purest forms of early direct democracy."
+          },
+          {
+            q: "What historical milestone occurred in Virginia in 1619 regarding colonial self-government?",
+            options: [
+              "The House of Burgesses was formed as the first elected legislative assembly",
+              "Virginia declared itself an independent empire free from Great Britain",
+              "The King abolished all colonial voting and appointed a military governor",
+              "Women and children were given equal voting rights in all colonial elections"
+            ],
+            correct: 0,
+            category: "Virginia (p. 57)",
+            rationale: "In 1619, Virginia established the House of Burgesses, the first representative legislature in the colonies."
+          }
+        ]
+      },
+
+      // -------------------------------------------------------------
+      // VERSION B: SOURCES & ANALYSIS EXAM
+      // -------------------------------------------------------------
+      B: {
+        badge: "Version B: Sources & Analysis Exam",
+        title: "13 Colonies: Primary Sources & Comparative Analysis",
+        questions: [
+          {
+            q: "In Source 1 (Mourt's Relation, 1622), what problem did the Separatists see, and how did Aaron summarize their plan to solve it?",
+            options: [
+              "'People disagreed, make rules together'",
+              "'No food was left, sail back to England'",
+              "'Native Americans attacked, build a stone wall'",
+              "'The ship was sinking, divide all gold coins'"
+            ],
+            correct: 0,
+            category: "Mayflower Source 1 (p. 10)",
+            rationale: "On Page 10, Aaron answered Q1 by writing: 'people disagreed, make rules together'."
+          },
+          {
+            q: "According to Source 1 on Page 10, who would choose the 'government and governors'?",
+            options: [
+              "'The passengers by common consent'",
+              "The King of England by royal decree",
+              "The wealthiest merchants aboard ship",
+              "The military general appointed by Parliament"
+            ],
+            correct: 0,
+            category: "Mayflower Source 1 (p. 10)",
+            rationale: "Aaron wrote on Page 10: 'the passengers by common consent'."
+          },
+          {
+            q: "In the Mayflower Compact (Source 2), what two main reasons were given for forming a government ('a civil body politick')?",
+            options: [
+              "'To keep order and survive'",
+              "'To discover gold and conquer rival empires'",
+              "'To avoid paying taxes to King James'",
+              "'To build warships and attack New Amsterdam'"
+            ],
+            correct: 0,
+            category: "Mayflower Source 2 (p. 10)",
+            rationale: "Aaron's handwritten answer on Page 10 for Q3 states: 'to keep order and survive'."
+          },
+          {
+            q: "What did the signers of the Mayflower Compact expect their newly formed government to do?",
+            options: [
+              "'Make equal laws for the general good'",
+              "'Force everyone to join the Church of England'",
+              "'Imprison any passenger without private land'",
+              "'Distribute all weapons equally among crew'"
+            ],
+            correct: 0,
+            category: "Mayflower Source 2 (p. 10)",
+            rationale: "Aaron's handwritten answer on Page 10 for Q4 states: 'make equal laws for the general good'."
+          },
+          {
+            q: "To whom or what did the Mayflower Compact signers promise 'all due submission and obedience'?",
+            options: [
+              "'Their government and its laws'",
+              "Solely the ship's sea captain",
+              "The Pope and Catholic bishops",
+              "The Spanish governor in Florida"
+            ],
+            correct: 0,
+            category: "Mayflower Source 2 (p. 10)",
+            rationale: "Aaron's handwritten answer on Page 10 for Q5 states: 'their government and its laws'."
+          },
+          {
+            q: "How did geography and climate directly influence the difference between New England and Southern economies?",
+            options: [
+              "New England's rocky soil forced a maritime economy, while the South's fertile soil and long growing season favored cash crop plantations",
+              "New England had tropical climates perfect for sugarcane, while the South was too freezing cold to farm",
+              "Both regions had identical geography, so they competed for the exact same wheat markets",
+              "The South had no access to the ocean, so it was forced to rely solely on factory manufacturing"
+            ],
+            correct: 0,
+            category: "Geography & Economy Link",
+            rationale: "Geography dictated colonial livelihood: rocky hills and cold winters in NE meant timber/fish; warm fertile South meant cash crops."
+          },
+          {
+            q: "What critical agricultural expertise did enslaved Africans bring to South Carolina's plantation economy?",
+            options: [
+              "Generational knowledge of rice cultivation and water control in swampy lowlands",
+              "Experience building European brick windmills and steam engines",
+              "Techniques for harvesting Arctic whaling blubber and codfish",
+              "Training in digging deep underground coal and silver mine shafts"
+            ],
+            correct: 0,
+            category: "South Carolina (p. 4)",
+            rationale: "Aaron's post-it notes record that enslaved Africans brought advanced rice-growing skills crucial for SC swamps."
+          },
+          {
+            q: "What radical belief held by Quakers distinguished Pennsylvania from most other colonies?",
+            options: [
+              "They believed in the spiritual equality of all people and treated Native Americans and women with dignity",
+              "They believed the King was a divine deity who must never be questioned",
+              "They believed church membership was required before a citizen could vote in town elections",
+              "They required every colonist to serve in a mandatory peacetime colonial army"
+            ],
+            correct: 0,
+            category: "Pennsylvania & Quakers",
+            rationale: "Quakers believed in equality, pacifism, and fair dealings with Native Americans, reflected in Aaron's notes."
+          },
+          {
+            q: "How did the religious policies of Massachusetts Bay Colony compare to those of Rhode Island?",
+            options: [
+              "Massachusetts strictly enforced Puritan religious uniformity, whereas Rhode Island welcomed people of all religious faiths",
+              "Massachusetts welcomed all world religions, while Rhode Island executed anyone who was not a Puritan",
+              "Both colonies completely outlawed any mention of religion in public life",
+              "Both colonies required all citizens to belong exclusively to the Church of England"
+            ],
+            correct: 0,
+            category: "Comparing Religion",
+            rationale: "Massachusetts Puritans did not tolerate dissent, leading Roger Williams to establish Rhode Island for true freedom."
+          },
+          {
+            q: "What was the transatlantic journey called that forcibly transported millions of captured Africans to the Americas?",
+            options: ["The Middle Passage of the Slave Trade", "The Mayflower Voyage", "The Northwest Passage", "The Great Migration"],
+            correct: 0,
+            category: "Vocabulary & Slave Trade",
+            rationale: "The slave trade involved capturing, transporting across the Middle Passage, and selling enslaved Africans."
+          },
+          {
+            q: "Under European mercantilism, what role were colonies expected to play for the 'mother country'?",
+            options: [
+              "Provide cheap raw materials and serve as a closed market for the mother country's manufactured goods",
+              "Manufacture competing products and undersell the mother country's factories",
+              "Sell goods freely to any rival empire that offered the highest price",
+              "Govern themselves with zero financial ties to the European monarch"
+            ],
+            correct: 0,
+            category: "Mercantilism Analysis",
+            rationale: "Colonies provided raw lumber, tobacco, and iron to England, then bought English finished goods."
+          },
+          {
+            q: "What tragic legal change occurred in Virginia in 1661 regarding African workers?",
+            options: [
+              "The House of Burgesses passed a law officially making African workers slaves for life",
+              "The assembly voted to grant all African workers full citizenship and free farmland",
+              "The British governor banned any further importation of workers into the Chesapeake",
+              "All plantation owners were forced to pay African workers identical wages as European workers"
+            ],
+            correct: 0,
+            category: "Virginia (p. 57)",
+            rationale: "Aaron's notes explicitly highlight the 1661 Virginia law that made African workers slaves for life."
+          },
+          {
+            q: "How did New York's government operate after the British takeover in 1664?",
+            options: [
+              "The British king appointed a governor, and in 1683 an elected assembly was granted",
+              "The citizens immediately wrote a constitution banning royal governors",
+              "The Dutch military governor retained absolute control for another 100 years",
+              "The colony was governed by a panel of religious ministers from Massachusetts"
+            ],
+            correct: 0,
+            category: "New York (p. 54)",
+            rationale: "The British appointed a governor, but colonists agitated until an elected assembly was granted in 1683."
+          },
+          {
+            q: "Which Native American group taught the Pilgrims at Plymouth how to fertilize crops with fish, hunt, and survive?",
+            options: ["The Wampanoag", "The Cherokee", "The Iroquois League", "The Seminole"],
+            correct: 0,
+            category: "Massachusetts (p. 51)",
+            rationale: "Aaron's post-it note states: 'The Wampanoag taught the Pilgrims to grow crops, hunt, and fish.'"
+          },
+          {
+            q: "What made the Maryland Toleration Act of 1649 historically significant?",
+            options: [
+              "It was one of the earliest colonial laws guaranteeing freedom of worship to Christians",
+              "It abolished the transatlantic slave trade across all thirteen colonies",
+              "It required every citizen to pay mandatory tithes to the Roman Catholic Pope",
+              "It declared Maryland's independence from Great Britain a century before 1776"
+            ],
+            correct: 0,
+            category: "Maryland (p. 56)",
+            rationale: "The 1649 Toleration Act protected Catholics and Protestants in Maryland from religious persecution."
+          },
+          {
+            q: "Which Southern colony was originally conceived as a utopian society where slavery and hard alcohol were banned?",
+            options: ["Georgia", "Virginia", "South Carolina", "North Carolina"],
+            correct: 0,
+            category: "Georgia (p. 59)",
+            rationale: "James Oglethorpe initially banned alcohol and slavery in Georgia to foster a disciplined, utopian society."
+          },
+          {
+            q: "Which bustling port city in South Carolina became the premier trading center of the Southern colonies?",
+            options: ["Charles Town (Charleston)", "Savannah", "Richmond", "Annapolis"],
+            correct: 0,
+            category: "South Carolina (p. 4)",
+            rationale: "Charles Town (today's Charleston) grew rapidly due to rice and indigo exports."
+          },
+          {
+            q: "In what way were all three colonial regions similar in how they governed themselves?",
+            options: [
+              "All developed traditions of self-governance through elected representative assemblies or town meetings",
+              "None of the colonies had any laws or courts whatsoever",
+              "All colonies were ruled directly by an absolute king living in America",
+              "All thirteen colonies shared the exact same written constitution"
+            ],
+            correct: 0,
+            category: "Essential Question Synthesis",
+            rationale: "As Aaron wrote in his summary, all colonies had forms of government and elected assemblies to help make laws."
+          },
+          {
+            q: "On Page 1 of Aaron's Map Detective, which northern area was listed as part of Massachusetts?",
+            options: ["Maine", "Vermont", "Newfoundland", "Nova Scotia"],
+            correct: 0,
+            category: "Map Detective (p. 1)",
+            rationale: "The 1770 map on Page 1 shows Maine as a northern part of Massachusetts."
+          },
+          {
+            q: "What was Aaron's definition for 'democratic' in his vocabulary list on Page 2?",
+            options: [
+              "'a form of government where people can vote'",
+              "'a document that maps out an area'",
+              "'an agreement between kings and queens'",
+              "'a business that buys and sells crops'"
+            ],
+            correct: 0,
+            category: "Vocabulary (p. 2)",
+            rationale: "Aaron wrote: 'a form of government where people can vote'."
+          }
+        ]
+      },
+
+      // -------------------------------------------------------------
+      // VERSION C: AARON'S POST-IT FACTS & MASTERY CHALLENGE
+      // -------------------------------------------------------------
+      C: {
+        badge: "Version C: Post-It & Mastery Exam",
+        title: "13 Colonies: Aaron's Post-It Notes & Deep Fact Challenge",
+        questions: [
+          {
+            q: "In what year was Jamestown, Virginia founded as England's first permanent American settlement?",
+            options: ["1607", "1620", "1681", "1732"],
+            correct: 0,
+            category: "Post-It Dates (Virginia)",
+            rationale: "Post-It Fact #1 for Virginia explicitly lists: 'Jamestown founded in 1607'."
+          },
+          {
+            q: "In what year was the Virginia House of Burgesses officially formed?",
+            options: ["1619", "1607", "1639", "1683"],
+            correct: 0,
+            category: "Post-It Dates (Virginia)",
+            rationale: "Post-It Fact #2 for Virginia explicitly lists: 'House of Burgesses formed in 1619'."
+          },
+          {
+            q: "In what year was Georgia founded as the last of the thirteen colonies?",
+            options: ["1732", "1681", "1634", "1607"],
+            correct: 0,
+            category: "Post-It Dates (Georgia)",
+            rationale: "Post-It Fact #1 for Georgia: 'Founded in 1732; last of the 13 colonies'."
+          },
+          {
+            q: "In what year did William Penn officially found the colony of Pennsylvania?",
+            options: ["1681", "1620", "1649", "1732"],
+            correct: 0,
+            category: "Post-It Dates (Pennsylvania)",
+            rationale: "Post-It Fact #1 for Pennsylvania records: 'Founded in 1681'."
+          },
+          {
+            q: "In what year did the English seize control of New Amsterdam from the Dutch and rename it New York?",
+            options: ["1664", "1624", "1683", "1701"],
+            correct: 0,
+            category: "Post-It Dates (New York)",
+            rationale: "Post-It Fact #1 for New York: 'English took over in 1664'."
+          },
+          {
+            q: "In what year did Maryland pass its landmark religious freedom law (Toleration Act)?",
+            options: ["1649", "1634", "1620", "1681"],
+            correct: 0,
+            category: "Post-It Dates (Maryland)",
+            rationale: "Post-It Fact #2 for Maryland records: 'Religious freedom law in 1649'."
+          },
+          {
+            q: "In what year did Roger Williams establish the settlement of Providence in Rhode Island?",
+            options: ["1636", "1620", "1664", "1732"],
+            correct: 0,
+            category: "Post-It Dates (Rhode Island)",
+            rationale: "Post-It Fact #1 for Rhode Island: 'Williams founded Providence in 1636'."
+          },
+          {
+            q: "In what year was Connecticut founded by Thomas Hooker and fellow Puritans?",
+            options: ["1639", "1607", "1681", "1732"],
+            correct: 0,
+            category: "Post-It Dates (Connecticut)",
+            rationale: "Post-It Fact #1 for Connecticut: 'Founded in 1639'."
+          },
+          {
+            q: "What symbol did Aaron draw for Georgia on his worksheet, and what did it represent?",
+            options: [
+              "A shield, representing a military buffer against Spanish Florida",
+              "A tobacco leaf, representing plantation riches",
+              "A dove, representing Quaker pacifism and equality",
+              "A ship, representing deep ocean fishing fleets"
+            ],
+            correct: 0,
+            category: "Aaron's Symbols (Georgia)",
+            rationale: "Aaron drew a shield for Georgia because it served as a protective buffer between the colonies and Spanish Florida."
+          },
+          {
+            q: "What symbol did Aaron draw for Virginia on his worksheet?",
+            options: ["A tobacco plant ('tobaco')", "A church", "A dove", "The Charter Oak tree"],
+            correct: 0,
+            category: "Aaron's Symbols (Virginia)",
+            rationale: "Aaron drew tobacco leaves and labeled it 'tobaco' for Virginia's major cash crop."
+          },
+          {
+            q: "What animal did Aaron sketch for Pennsylvania to represent peace and Quaker values?",
+            options: ["A dove / bird of peace", "A beaver", "A codfish", "A horse"],
+            correct: 0,
+            category: "Aaron's Symbols (Pennsylvania)",
+            rationale: "Aaron sketched a peaceful dove for Pennsylvania, symbolizing Quaker harmony."
+          },
+          {
+            q: "What symbol did Aaron draw for Maryland on his worksheet?",
+            options: ["A Christian cross", "A shield", "A rice stalk", "A pine tree"],
+            correct: 0,
+            category: "Aaron's Symbols (Maryland)",
+            rationale: "Aaron drew a Christian cross for Maryland, highlighting its founding as a haven for Catholics."
+          },
+          {
+            q: "Who were the eight original aristocratic founders of South Carolina?",
+            options: [
+              "Eight English nobles known as the Lords Proprietors",
+              "Eight Puritan clergymen from Boston",
+              "Eight Dutch fur traders from New Amsterdam",
+              "Eight former debtor prisoners from London"
+            ],
+            correct: 0,
+            category: "Student Sample (South Carolina)",
+            rationale: "From Aaron's sample page: 'Eight English nobles (the Lords Proprietors)' founded South Carolina."
+          },
+          {
+            q: "From which Caribbean island did many early South Carolina planters arrive, bringing plantation systems with them?",
+            options: ["Barbados", "Cuba", "Jamaica", "Puerto Rico"],
+            correct: 0,
+            category: "South Carolina Settlers",
+            rationale: "Aaron's sample notes state settlers came from England and later from the island of Barbados."
+          },
+          {
+            q: "What was the famous tree in Connecticut where colonists hid their charter to protect their self-governing freedom?",
+            options: ["The Charter Oak", "The Liberty Elm", "The Boston Pine", "The Pilgrim Willow"],
+            correct: 0,
+            category: "Connecticut (p. 53)",
+            rationale: "Aaron's post-it note mentions that the Charter Oak symbolized colonial freedom from royal interference."
+          },
+          {
+            q: "According to Aaron's notes, what unexpected role did Rhode Island play in the colonial economy despite its religious freedom?",
+            options: [
+              "It was a major slave trading center",
+              "It manufactured all the firearms used by the British army",
+              "It was the sole producer of Spanish citrus fruits",
+              "It refused to trade with any other American colony"
+            ],
+            correct: 0,
+            category: "Rhode Island (p. 52)",
+            rationale: "Post-It Fact #2 for Rhode Island explicitly notes: 'Rhode Island was a slave trading center'."
+          },
+          {
+            q: "In 1683, what major political right did the British finally grant to the people of New York?",
+            options: [
+              "An elected representative assembly",
+              "Complete freedom from paying any taxes forever",
+              "The power to appoint their own royal governors",
+              "Total separation from the British Empire"
+            ],
+            correct: 0,
+            category: "New York (p. 54)",
+            rationale: "Aaron's notes record: 'Assembly granted in 1683'."
+          },
+          {
+            q: "What mountain range is featured in the official Page 3 Word Bank for colonial geography?",
+            options: ["Appalachian Mountains", "Rocky Mountains", "Sierra Nevada", "Cascade Mountains"],
+            correct: 0,
+            category: "Word Bank Geography (p. 3)",
+            rationale: "The Page 3 word bank specifically includes the Appalachian Mountains bordering the colonies to the west."
+          },
+          {
+            q: "What was Aaron's exact handwritten definition for 'charter' on Page 2?",
+            options: [
+              "'a document that maps out an area'",
+              "'a document to borrow money from a bank'",
+              "'a ship carrying Pilgrims to America'",
+              "'a law making workers slaves for life'"
+            ],
+            correct: 0,
+            category: "Vocabulary (p. 2)",
+            rationale: "Aaron wrote: 'a document that maps out an area'."
+          },
+          {
+            q: "What was Aaron's final conclusion in his 5-sentence Essential Question essay about colonial governments on Page 9?",
+            options: [
+              "'Many colonies had elected assemblies to help make laws.'",
+              "'No colonies ever allowed anyone to vote or participate.'",
+              "'All colonies were controlled strictly by Spanish governors.'",
+              "'Only the Southern colonies possessed any form of government.'"
+            ],
+            correct: 0,
+            category: "Essential Question (p. 9)",
+            rationale: "Aaron's fifth sentence concludes: 'Many colonies had elected assemblies to help make laws.'"
+          }
+        ]
+      }
+    };
+
+    // Test Runner State
+    let currentVersionKey = 'A';
+    let currentQuestions = [];
+    let currentQIndex = 0;
+    let userAnswers = [];
+
+    function loadTestVersion(versionKey) {
+      playSound('click');
+      currentVersionKey = versionKey;
+      const testData = testVersions[versionKey];
+
+      document.querySelectorAll('.test-version-btn').forEach(btn => {
+        btn.classList.remove('bg-amber-700', 'text-white', 'shadow');
+        btn.classList.add('bg-stone-100', 'text-stone-700');
+      });
+      const activeBtn = document.getElementById('tbtn-version' + versionKey);
+      activeBtn.classList.remove('bg-stone-100', 'text-stone-700');
+      activeBtn.classList.add('bg-amber-700', 'text-white', 'shadow');
+
+      document.getElementById('test-badge-name').innerText = testData.badge;
+      document.getElementById('test-title').innerText = testData.title;
+
+      currentQuestions = testData.questions.map(q => {
+        const originalCorrectOption = q.options[q.correct];
+        const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+        const newCorrectIndex = shuffledOptions.indexOf(originalCorrectOption);
+        return {
+          ...q,
+          options: shuffledOptions,
+          correct: newCorrectIndex
+        };
+      });
+
+      userAnswers = new Array(currentQuestions.length).fill(null);
+      currentQIndex = 0;
+
+      document.getElementById('test-question-box').classList.remove('hidden');
+      document.getElementById('test-results-view').classList.add('hidden');
+
+      renderCurrentQuestion();
+    }
+
+    function renderCurrentQuestion() {
+      const q = currentQuestions[currentQIndex];
+      const total = currentQuestions.length;
+
+      document.getElementById('test-progress-text').innerText = `Question ${currentQIndex + 1} of ${total}`;
+      const pct = Math.round(((currentQIndex + 1) / total) * 100);
+      document.getElementById('test-progress-bar').style.width = pct + '%';
+
+      document.getElementById('q-number-circle').innerText = currentQIndex + 1;
+      document.getElementById('q-category-tag').innerText = q.category;
+      document.getElementById('q-text').innerText = q.q;
+
+      const optionsContainer = document.getElementById('q-options');
+      optionsContainer.innerHTML = '';
+
+      q.options.forEach((optText, idx) => {
+        const isSelected = userAnswers[currentQIndex] === idx;
+        const btn = document.createElement('button');
+        btn.className = `p-4 rounded-xl border text-left text-sm font-medium transition flex items-center justify-between ${
+          isSelected 
+            ? 'border-amber-600 bg-amber-50 ring-2 ring-amber-500 font-bold text-stone-900' 
+            : 'border-stone-200 bg-white hover:bg-stone-50 text-stone-800'
+        }`;
+        
+        const letter = String.fromCharCode(65 + idx);
+        btn.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold ${
+              isSelected ? 'bg-amber-600 text-white border-amber-600' : 'bg-stone-100 text-stone-600'
+            }">${letter}</span>
+            <span>${optText}</span>
+          </div>
+        `;
+
+        btn.onclick = () => selectTestAnswer(idx);
+        optionsContainer.appendChild(btn);
+      });
+
+      document.getElementById('q-prev-btn').disabled = currentQIndex === 0;
+
+      const nextBtn = document.getElementById('q-next-btn');
+      const finishBtn = document.getElementById('q-finish-btn');
+
+      if (currentQIndex === total - 1) {
+        nextBtn.classList.add('hidden');
+        finishBtn.classList.remove('hidden');
+      } else {
+        nextBtn.classList.remove('hidden');
+        finishBtn.classList.add('hidden');
+      }
+    }
+
+    function selectTestAnswer(optionIdx) {
+      playSound('click');
+      userAnswers[currentQIndex] = optionIdx;
+      renderCurrentQuestion();
+    }
+
+    function navTest(step) {
+      playSound('click');
+      currentQIndex += step;
+      if (currentQIndex < 0) currentQIndex = 0;
+      if (currentQIndex >= currentQuestions.length) currentQIndex = currentQuestions.length - 1;
+      renderCurrentQuestion();
+    }
+
+    function submitTest() {
+      const unanswered = userAnswers.filter(a => a === null).length;
+      if (unanswered > 0) {
+        showCustomModal(
+          "Unanswered Questions",
+          `Aaron, you still have ${unanswered} question(s) left unanswered. Are you sure you want to grade your test right now?`,
+          "⚠️",
+          executeGradeTest
+        );
+      } else {
+        executeGradeTest();
+      }
+    }
+
+    function executeGradeTest() {
+      let correctCount = 0;
+      currentQuestions.forEach((q, idx) => {
+        if (userAnswers[idx] === q.correct) {
+          correctCount++;
+        }
+      });
+
+      const total = currentQuestions.length;
+      const scorePct = Math.round((correctCount / total) * 100);
+
+      let letter = 'F';
+      let emoji = '📚';
+      let message = "Good practice! Review your missed questions below and try again!";
+
+      if (scorePct >= 90) {
+        letter = 'A+';
+        emoji = '🌟';
+        message = "Remarkable mastery, Aaron! You know the 13 Colonies inside and out!";
+      } else if (scorePct >= 80) {
+        letter = 'B';
+        emoji = '🎉';
+        message = "Great job, Aaron! You are definitely ready for your upcoming test!";
+      } else if (scorePct >= 70) {
+        letter = 'C';
+        emoji = '👍';
+        message = "Solid effort! A quick review of the study guide will help you hit an A!";
+      }
+
+      document.getElementById('res-grade-emoji').innerText = emoji;
+      document.getElementById('res-congrats-text').innerText = `${message}`;
+      document.getElementById('res-summary-subtext').innerText = `You completed ${testVersions[currentVersionKey].badge}.`;
+      document.getElementById('res-score-pct').innerText = scorePct + '%';
+      document.getElementById('res-correct-fraction').innerText = `${correctCount} / ${total}`;
+      document.getElementById('res-letter-grade').innerText = letter;
+
+      const reviewContainer = document.getElementById('test-review-items');
+      reviewContainer.innerHTML = '';
+
+      currentQuestions.forEach((q, idx) => {
+        const userChoice = userAnswers[idx];
+        const isRight = userChoice === q.correct;
+
+        const item = document.createElement('div');
+        item.className = `p-4 rounded-xl border text-xs md:text-sm ${
+          isRight ? 'border-emerald-200 bg-emerald-50/50' : 'border-rose-200 bg-rose-50/50'
+        }`;
+
+        const userText = userChoice !== null ? q.options[userChoice] : "No answer selected";
+        const correctText = q.options[q.correct];
+
+        item.innerHTML = `
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <span class="font-bold text-stone-900">Q${idx + 1}. ${q.q}</span>
+            <span class="font-bold px-2 py-0.5 rounded text-xs ${isRight ? 'bg-emerald-200 text-emerald-800' : 'bg-rose-200 text-rose-800'}">
+              ${isRight ? '✓ Correct' : '✗ Missed'}
+            </span>
+          </div>
+          <div class="space-y-1 text-stone-700 mt-2">
+            <div><strong>Your Answer:</strong> <span class="${isRight ? 'text-emerald-700 font-semibold' : 'text-rose-700 font-semibold line-through'}">${userText}</span></div>
+            ${!isRight ? `<div><strong>Correct Answer:</strong> <span class="text-emerald-800 font-bold">${correctText}</span></div>` : ''}
+            <div class="text-stone-600 bg-white/70 p-2 rounded border border-stone-200/60 mt-1 italic">
+              <strong>Aaron's Study Note:</strong> ${q.rationale}
+            </div>
+          </div>
+        `;
+
+        reviewContainer.appendChild(item);
+      });
+
+      document.getElementById('test-question-box').classList.add('hidden');
+      document.getElementById('test-results-view').classList.remove('hidden');
+
+      if (scorePct >= 80) {
+        playSound('victory');
+        addXp(200);
+      } else {
+        playSound('correct');
+        addXp(75);
+      }
+    }
+
+    function retakeCurrentTest() {
+      loadTestVersion(currentVersionKey);
+    }
+
+    function printReportCard() {
+      window.print();
+    }
+
+    /* ---------------------------------------------------------------
+       8. INITIALIZATION ON LOAD
+       --------------------------------------------------------------- */
+    window.addEventListener('DOMContentLoaded', () => {
+      resetRegionSorter();
+      initFounderGame();
+      startVocabSprint();
+      initInteractiveMapSection();
+      loadTestVersion('A');
+    });
+  </script>
+</body>
+</html>
